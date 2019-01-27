@@ -1,0 +1,14 @@
+
+.cover {
+    margin-top: -20px; /* hehe */
+    background-image: url('/img/pexels-photo-577585.jpeg');
+    color: #fff;
+}
+
+.cover button.btn {
+    margin: 5px;
+}
+
+.cover button.read-more-button.btn {
+    margin-top: 30px;
+}

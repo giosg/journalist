@@ -9,7 +9,7 @@ class AppFooter extends Component {
     return (
       <Navbar bg="light" fixed="bottom">
 
-        <Nav className="mr-auto">
+        <Nav className="ml-auto float-right">
           <Nav.Link href="https://developers.giosg.com/reporting_http_api.html" target="_blank">
             Generic Reporting documentation
           </Nav.Link>
