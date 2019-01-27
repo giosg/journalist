@@ -1,30 +1,36 @@
 import React, { Component } from 'react';
+import { LinkContainer } from "react-router-bootstrap";
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
-import NavDropdown from 'react-bootstrap/NavDropdown'
 
 import './AppHeader.css';
 
 class AppHeader extends Component {
   render() {
     return (
-        <Navbar bg="light" expand="lg">
-          <Navbar.Brand href="#home">Journalist</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse>
-            <Nav className="mr-auto">
-              <Nav.Link href="#home">Send</Nav.Link>
-              <Nav.Link href="#link">Query</Nav.Link>
-              <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-                <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
-              </NavDropdown>
-            </Nav>
-          </Navbar.Collapse>
-        </Navbar>
+      <Navbar bg="primary" variant="dark" expand="lg" sticky="top">
+        <Navbar.Brand href="#home">Journalist</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse>
+          <Nav className="mr-auto">
+            <LinkContainer to="/">
+              <Nav.Link>
+                About
+              </Nav.Link>
+            </LinkContainer>
+            <LinkContainer to="/query">
+              <Nav.Link>
+                Query
+              </Nav.Link>
+            </LinkContainer>
+            <LinkContainer to="/send">
+              <Nav.Link>
+                Send
+              </Nav.Link>
+            </LinkContainer>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
     );
   }
 }
