@@ -1,15 +1,13 @@
-import React, { Component, SyntheticEvent } from 'react';
+import React, { Component } from 'react';
+const moment = require('moment');
 
 import axios from 'axios';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
+import { Form, Button, InputGroup } from 'react-bootstrap';
 
-import { ReplaceProps, BsPrefixProps } from 'react-bootstrap/helpers';
 import './SendEventForm.css';
 
 
-interface GenericEventPayload {
+export interface GenericEventPayload {
   event_version: number;
   category: string;
   action: string;
@@ -21,47 +19,27 @@ interface GenericEventPayload {
   value: number;
 }
 
+interface SendEventFormProps {
+  onInputChange: Function;
+  initialEventData: GenericEventPayload;
+}
+
 interface SendEventFormState {
-  event: GenericEventPayload;
+  eventData: GenericEventPayload;
 };
 
-class SendEventForm extends Component<{}, SendEventFormState> {
-  state = {
-    event: {
-      event_version: 1,
-      timestamp: new Date().toISOString(),
-      organization_id: "3bfed5a4-0353-4c56-887c-56a08b3883ab",
-      vendor: "com.giosg.journalist",
-      category: "test-event",
-      label: "this-is-test",
-      properties: [],
-      action: "test-sending",
-      value: 1,
-    }
-  };
+export class SendEventForm extends Component<SendEventFormProps, SendEventFormState> {
 
-  constructor(props: any) {
+  constructor(props: SendEventFormProps) {
     super(props);
-    // this.state = {
-    //   event: {
-    //     event_version: 1,
-    //     timestamp: "2019-01-30T16:32:17.879Z",
-    //     organization_id: "3bfed5a4-0353-4c56-887c-56a08b3883ab",
-    //     vendor: "com.giosg.journalist",
-    //     category: "test-event",
-    //     label: "this-is-test",
-    //     properties: [],
-    //     action: "test-sending",
-    //     value: 1,
-    //   }
-    // };
+    this.state = {
+      eventData: props.initialEventData
+    };
   }
 
-  onSendEventClick() {
-    let eventData: GenericEventPayload = this.state.event;
-
+  onSendEventClick = () => {
     let apiUrl = 'https://api.giosg.com/events/v1/store/untrusted';
-    axios.post(apiUrl, eventData)
+    axios.post(apiUrl, this.state.eventData)
       .then(function (response) {
         console.log(response);
       })
@@ -70,92 +48,165 @@ class SendEventForm extends Component<{}, SendEventFormState> {
       });
   };
 
-  onGenerateOrgIdClick() {
-    console.log("Should generate org id...");
+  onGenerateOrgIdClick = () => {
+    var eventData = {...this.state.eventData}
+    eventData.organization_id = 'rölö';
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
   };
-
-  //onEventVersionChange(event: React.ChangeEvent<HTMLInputElement>) {
   onEventVersionChange = (event: any) => {
-    if (!event) {
-      return;
-    }
-
-    let eventData = {...this.state.event};
+    const eventData = {...this.state.eventData};
     eventData.event_version = parseInt(event.target.value);
-    this.setState({
-      event: eventData
-    });
-
-    this.onInputChange();
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
+  };
+  onTimestampChange = (event: any) => {
+    const eventData = {...this.state.eventData};
+    eventData.timestamp = event.target.value;
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
+  };
+  onVendorChange = (event: any) => {
+    const eventData = {...this.state.eventData};
+    eventData.vendor = event.target.value;
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
+  };
+  onOrganizationIdChange = (event: any) => {
+    const eventData = {...this.state.eventData};
+    eventData.organization_id = event.target.value;
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
+  };
+  onCategoryChange = (event: any) => {
+    const eventData = {...this.state.eventData};
+    eventData.category = event.target.value;
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
+  };
+  onLabelChange = (event: any) => {
+    const eventData = {...this.state.eventData};
+    eventData.label = event.target.value;
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
+  };
+  onActionChange = (event: any) => {
+    const eventData = {...this.state.eventData};
+    eventData.action = event.target.value;
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
+  };
+  onValueChange = (event: any) => {
+    const eventData = {...this.state.eventData};
+    eventData.value = parseFloat(event.target.value);
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
+  };
+  onPropertiesChange = (event: any) => {
+    const eventData = {...this.state.eventData};
+    eventData.properties = event.target.value.split(',');
+    this.setState({eventData});
+    this.props.onInputChange(eventData);
   };
 
-  onInputChange() {
-    console.log("Should refresh the preview on right side..");
+  getValidationState = (value: any, fieldType: 'string'|'number'|'timestamp'): string => {
+    if (fieldType === 'number' && parseFloat(value) !== NaN) {
+      return 'success';
+    } else if (fieldType === 'string') {
+      return 'success';
+    } else if (fieldType === 'timestamp' && moment(value).isValid()) {
+      return 'success';
+    }
+    return 'error';
   };
 
   render() {
     return (
       <Form>
-        <Form.Group controlId="formEventVersion">
-          <Form.Label>Event version</Form.Label>
-          <Form.Control type="number" placeholder="Numeric event version" value={this.state.event.event_version.toString()} onChange={this.onEventVersionChange} />
-          <Form.Text className="text-muted">
-            <strong>event_version:</strong> used to specify version of event in case you ever want to change it.
+        <Form.Group>
+          <Form.Label>action</Form.Label>
+          <Form.Control type='text' placeholder='action' value={this.state.eventData.action} onChange={this.onActionChange} />
+          <Form.Text className='text-muted'>
+            The action of the event, e.g. "created".
           </Form.Text>
         </Form.Group>
 
-        <Form.Group controlId="formVendor">
-          <Form.Label>vendor</Form.Label>
-          <Form.Control type="text" placeholder="vendor" />
-          <Form.Text className="text-muted">
-            <strong>event_version:</strong> used to specify version of event in case you ever want to change it.
+        <Form.Group>
+          <Form.Label>category</Form.Label>
+          <Form.Control type='text' placeholder='category' value={this.state.eventData.category} onChange={this.onCategoryChange} />
+          <Form.Text className='text-muted'>
+            The category of the event, e.g. "widget".
           </Form.Text>
         </Form.Group>
 
-        <Form.Group controlId="formOrganizationId">
+        <Form.Group>
+          <Form.Label>event_version</Form.Label>
+          <Form.Control type='number' placeholder='Numeric event version' value={this.state.eventData.event_version.toString()} onChange={this.onEventVersionChange} />
+          <Form.Text className='text-muted'>
+            The version of the event schema, e.g. 1.
+          </Form.Text>
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>label</Form.Label>
+          <Form.Control type='text' placeholder='label' value={this.state.eventData.label} onChange={this.onLabelChange} />
+          <Form.Text className='text-muted'>
+            The label of the event, e.g. "widget-5746".
+          </Form.Text>
+        </Form.Group>
+
+        <Form.Group>
           <Form.Label>organization_id</Form.Label>
-          <InputGroup className="mb-3">
-            <Form.Control type="text" placeholder="organization_id" />
+          <InputGroup className='mb-3'>
+            <Form.Control type='text' placeholder='organization_id' value={this.state.eventData.organization_id} onChange={this.onOrganizationIdChange} />
             <InputGroup.Append>
-              <Button variant="outline-secondary" onClick={this.onGenerateOrgIdClick.bind(this)}>Generate</Button>
+              <Button variant='outline-secondary' onClick={this.onGenerateOrgIdClick}>Generate</Button>
             </InputGroup.Append>
           </InputGroup>
+          <Form.Text className='text-muted'>
+            The id of the organization which owns the event, e.g. "3bfed5a4-0353-4c56-887c-56a08b3883ab".
+          </Form.Text>
         </Form.Group>
 
-        <Form.Group controlId="formCategory">
-          <Form.Label>category</Form.Label>
-          <Form.Control type="text" placeholder="category" />
-        </Form.Group>
-
-        <Form.Group controlId="formLabel">
-          <Form.Label>label</Form.Label>
-          <Form.Control type="text" placeholder="label" />
-        </Form.Group>
-
-        <Form.Group controlId="formAction">
-          <Form.Label>action</Form.Label>
-          <Form.Control type="text" placeholder="action" />
-        </Form.Group>
-
-        <Form.Group controlId="formAction">
-          <Form.Label>value</Form.Label>
-          <Form.Control type="text" placeholder="value" />
-        </Form.Group>
-
-        <Form.Group controlId="formProperties">
+        <Form.Group>
           <Form.Label>properties</Form.Label>
-          <Form.Control type="text" placeholder="properties" />
+          <Form.Control type='text' placeholder='properties (, as divider)' value={this.state.eventData.properties.join(',')} onChange={this.onPropertiesChange} />
+          <Form.Text className='text-muted'>
+            The properties of the event, e.g. "campaign,targeted". Each value separated with "," is considered as a separate property.
+          </Form.Text>
         </Form.Group>
 
-        <Form.Group controlId="formBasicChecbox">
-          <Form.Check type="checkbox" label="Check me out" />
+        <Form.Group>
+          <Form.Label>timestamp</Form.Label>
+          <Form.Control type='text' placeholder='timestamp' value={this.state.eventData.timestamp} onChange={this.onTimestampChange} />
+          <Form.Text className='text-muted'>
+            The timestamp of the event in ISO8601 format, e.g. "2019-01-01T00:00:00Z".
+          </Form.Text>
         </Form.Group>
-        <Button variant="primary" type="button" onClick={this.onSendEventClick.bind(this)}>
+
+        <Form.Group>
+          <Form.Label>value</Form.Label>
+          <Form.Control type='text' placeholder='value' value={this.state.eventData.value.toString()} onChange={this.onValueChange} />
+          <Form.Text className='text-muted'>
+            The value of the event, e.g. "35.2". Is converted to float before sending.
+          </Form.Text>
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>vendor</Form.Label>
+          <Form.Control type='text' placeholder='vendor' value={this.state.eventData.vendor} onChange={this.onVendorChange} />
+          <Form.Text className='text-muted'>
+            The sender of the events, e.g. "interaction-designer".
+          </Form.Text>
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Check type='checkbox' label='Checkbox' />
+        </Form.Group>
+        <Button variant='primary' type='button' onClick={this.onSendEventClick}>
           Send event
         </Button>
       </Form>
     );
   };
 }
-
-export default SendEventForm;
