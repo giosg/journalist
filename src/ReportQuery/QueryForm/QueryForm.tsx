@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 const moment = require('moment');
 
-import { Form, InputGroup , Badge, Col, Dropdown } from 'react-bootstrap';
+import { Form, InputGroup , Badge, Col, Dropdown, Container, Modal } from 'react-bootstrap';
+import JsonPreview from '../ResponsePreview/ResponsePreview';
 
 import './QueryForm.css';
 
@@ -25,7 +26,7 @@ interface QueryFormProps {
 interface QueryFormFormState {
   queryData: GenericEventPayload;
   token: string;
-  groupByItems: string[]
+  groupByItems: string[];
 };
 
 class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
@@ -35,7 +36,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     this.state = {
       queryData: props.initialQueryData,
       token: this.props.token,
-      groupByItems: []
+      groupByItems: [],
     };
   }
 
@@ -69,16 +70,10 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     this.setState({queryData: queryData, token: token});
     this.props.onInputChange(queryData, token);
   };
-  onGranularityChange = (event: any) => {
-    const queryData = {...this.state.queryData};
-    queryData.granularity = event.target.value;
-    this.setState({queryData});
-    this.props.onInputChange(queryData);
-  };
 
   onGranularityPick = (event: any) => {
     const queryData = {...this.state.queryData};
-    queryData.sources = event.target.value;
+    queryData.granularity = event.target.value;
     this.props.onInputChange(queryData);
   }
 
@@ -114,7 +109,6 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     })
     queryData.group_by = groupBy;
     this.props.onInputChange(queryData);
-
   }
 
   getValidationState = (value: any, fieldType: 'string'|'number'|'timestamp'): string => {
@@ -142,32 +136,37 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
             The sources used for querying events.
           </Form.Text>
         </Form.Group>
+
+        <Form.Label>Token</Form.Label>
         <Form.Group>
-          <Form.Label>Token</Form.Label>
           <Form.Control type='text' onChange={this.onTokenChange} />
           <Form.Text className='text-muted' placeholder="abc5678d-10sf-8fj4-fm3m-3d3f3f432asd">
             Token is used for authorizating giosg backend.
           </Form.Text>
         </Form.Group>
+
         <Form.Label>Interval</Form.Label>
-        <Form.Row>
-          <Form.Group as={Col}>
-            <Form.Control type='text'
-            value={this.state.queryData.interval.start} onChange={this.onStartChange} />
-          </Form.Group>
-          <Form.Group>
-            <Form.Label>-</Form.Label>
-          </Form.Group>
-          <Form.Group as={Col}>
-            <Form.Control type='text'
-            value={this.state.queryData.interval.end} onChange={this.onEndChange} />
-          </Form.Group>
-        </Form.Row>
-        <Form.Text className='text-muted'>
-                The interval used for querying events.
-        </Form.Text>
         <Form.Group>
-          <Form.Label>Organization id</Form.Label>
+          <Form.Row>
+            <Form.Group>
+              <Form.Control type='text'
+              value={this.state.queryData.interval.start} onChange={this.onStartChange} />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>-</Form.Label>
+            </Form.Group>
+            <Form.Group>
+              <Form.Control type='text'
+              value={this.state.queryData.interval.end} onChange={this.onEndChange} />
+            </Form.Group>
+          </Form.Row>
+            <Form.Text className='text-muted'>
+              The interval used for querying events.
+            </Form.Text>
+        </Form.Group>
+
+        <Form.Group>
+        <Form.Label>Organization id</Form.Label>
           <InputGroup className='mb-3'>
             <Form.Control type='text' placeholder='organization_id' value={this.state.queryData.organization_id} onChange={this.onOrganizationIdChange} />
           </InputGroup>
@@ -189,16 +188,16 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
           The granularity used to aggregate events to selected duration buckets.
           </Form.Text>
         </Form.Group>
-
         <Form.Group>
           <Form.Label>Aggregations</Form.Label>
           <Form.Control multiple as="select" onChange={this.onAggregationsPick}>
-            <option value="Max">Max</option>
-            <option value="Min">Min</option>
-            <option value="Sum">Sum</option>
-            <option value="Count">Count</option>
+            <option value="max">Max</option>
+            <option value="min">Min</option>
+            <option value="sum">Sum</option>
+            <option value="count">Count</option>
           </Form.Control>
         </Form.Group>
+
         <Form.Group>
           <Form.Label>Vendor</Form.Label>
           <Form.Control type='text' placeholder='Vendor uuid' value={this.state.queryData.vendor} onChange={this.onVendorChange} />
@@ -207,6 +206,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
           </Form.Text>
         </Form.Group>
         <Form.Group>
+
           <Form.Label>Group by</Form.Label>
           <Form.Row>
           {this.state.groupByItems.map(title => (

@@ -5,24 +5,31 @@ import Card from 'react-bootstrap/Card';
 
 import './ResponsePreview.css';
 
-interface QueryFormProps {
-   responseData: any;
+interface JsonPreviewProps {
+   jsonData: any;
 }
-interface QueryFormState {
+interface JsonPreviewPropsState {
 
 }
 
-class QueryForm extends Component<QueryFormProps, QueryFormState> {
+class JsonPreview extends Component<JsonPreviewProps, JsonPreviewPropsState> {
 
   render() {
+    console.log(this.props.jsonData)
+    if(Object.keys(this.props.jsonData).length > 0) {
+      return (
+        <Container style={{flex: 1, justifyContent: 'center'}}>
+            <Card style={{minHeight: 500, maxHeight: 800}}>
+            <pre>{JSON.stringify(this.props.jsonData, null, 2) }</pre>
+            </Card>
+        </Container>
+      );
+    }
     return (
-      <Container>
-          <Card style={{minHeight: 250}}>
-          <pre>{JSON.stringify(this.props.responseData, null, 2) }</pre>
-          </Card>
-      </Container>
-    );
+      <Card style={{minHeight: 500, maxHeight: 500}}>
+      </Card>
+    )
   }
 }
 
-export default QueryForm;
+export default JsonPreview;

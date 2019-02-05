@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button, Modal } from 'react-bootstrap';
 
 import QueryForm from './QueryForm/QueryForm';
 
-import ResponsePreview from './ResponsePreview/ResponsePreview';
+import JsonPreview from './ResponsePreview/ResponsePreview';
 
 import axios from 'axios';
 
-import './ReportQuery.css';
+import './ReportQuery.css'
 
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -21,35 +21,35 @@ interface ReportQueryState {
   currentQuery: any;
   responseData: any;
   token: string;
+  queryViewModalVisible: boolean;
 };
 
 class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
 
   constructor(props: any) {
     super(props);
+    let endDate = new Date();
+    let startDate = new Date();
+    startDate.setDate(startDate.getDate() -8)
     this.state = {
       currentQuery:
       {
         sources: ["untrusted"],
         interval: {
-          "start": new Date().toISOString(),
-          "end": new Date().toISOString()
+          "start": startDate.toISOString(),
+          "end": endDate.toISOString()
         },
         granularity: "day",
         group_by: [],
         organization_id: "3bfed5a4-0353-4c56-887c-56a08b3883ab",
         vendor: "com.giosg.journalist",
-        aggregations: ["sum"],
+        aggregations: [],
         filters: {
-          type: "and",
-          fields: [
-              {"type": "selector", "dimension": "category", "value": "widget"},
-              {"type": "selector", "dimension": "action", "value": "impression"}
-          ]
-      }
+        }
       },
       responseData:{ },
       token: "",
+      queryViewModalVisible: false,
     };
   }
 
@@ -57,19 +57,29 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
     this.setState({
       currentQuery: currentQuery,
       token: token
-    })
+    });
     console.log(this.state.currentQuery)
   }
+
+  onModalViewVisibilityChange = () => {
+    this.setState({
+      queryViewModalVisible: !this.state.queryViewModalVisible,
+    });
+  }
+
   onQuery = () => {
     let self = this;
-    let apiUrl = 'https://api.giosg.com/events/v1/fetch/';
+    let apiBaseUrl = 'https://api.giosg.com/api/events/v1';
+    let apiUrlEnding = '/orgs/' + this.state.currentQuery.organization_id + '/fetch'
     let headers = {
       headers: {
-      "Authorization" : this.state.token
+      "Authorization" : this.state.token,
+      "Content-Type": "application/json"
       }
     }
-    axios.post(apiUrl, this.state.currentQuery, headers=headers)
+    axios.post(apiBaseUrl + apiUrlEnding, this.state.currentQuery, headers=headers)
     .then(function (response: any) {
+        console.log(response)
         self.setState({
           responseData: response['data'],
         })
@@ -84,18 +94,35 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
   render() {
     return (
       <Container>
+          <Modal
+            size="lg"
+            show={this.state.queryViewModalVisible}
+            onHide={this.onModalViewVisibilityChange}
+            aria-labelledby="example-modal-sizes-title-lg"
+          >
+          <Modal.Header closeButton>
+            <Modal.Title id="example-modal-sizes-title-lg">
+              Query preview
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <JsonPreview jsonData={this.state.currentQuery}/>
+          </Modal.Body>
+        </Modal>
         <ToastContainer autoClose={5000} hideProgressBar={true}/>
         <Row>
           <Col sm>
           <QueryForm onInputChange={this.onFormChange} initialQueryData={this.state.currentQuery} token={this.state.token}/>
           </Col>
           <Col sm>
-          <ResponsePreview responseData={this.state.currentQuery}/>
+          <JsonPreview jsonData={this.state.responseData}/>
           </Col>
         </Row>
         <Button variant='primary' type='button' onClick={this.onQuery}>
           Execute query
         </Button>
+        <Button style={{marginLeft: 10}} variant="info" onClick={this.onModalViewVisibilityChange}>Preview query</Button>
+
       </Container>
     );
   }
