@@ -4,7 +4,7 @@ const moment = require('moment');
 import axios from 'axios';
 import { Form, Button, InputGroup } from 'react-bootstrap';
 
-import './SendEventForm.css';
+import './QueryForm.css';
 
 
 export interface GenericEventPayload {
@@ -19,38 +19,22 @@ export interface GenericEventPayload {
   value: number;
 }
 
-interface SendEventFormProps {
+interface QueryFormProps {
   onInputChange: Function;
-  initialEventData: GenericEventPayload;
+  initialQueryData: GenericEventPayload;
 }
 
-interface SendEventFormState {
+interface QueryFormFormState {
   eventData: GenericEventPayload;
 };
 
-export class SendEventForm extends Component<SendEventFormProps, SendEventFormState> {
+class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
 
-  constructor(props: SendEventFormProps) {
+  constructor(props: QueryFormProps) {
     super(props);
     this.state = {
-      eventData: {
-        event_version: 1,
-        timestamp: new Date().toISOString(),
-        organization_id: "3bfed5a4-0353-4c56-887c-56a08b3883ab",
-        vendor: "com.giosg.journalist",
-        category: "test-event",
-        label: "this-is-test",
-        properties: ["test-property"],
-        action: "test-sending",
-        value: 1,
-      }
+      eventData: props.initialQueryData
     };
-  }
-
-  onFormChange = (eventData: GenericEventPayload) => {
-    this.setState({
-      eventData: eventData
-    });
   }
 
   onSendEventClick = () => {
@@ -193,14 +177,6 @@ export class SendEventForm extends Component<SendEventFormProps, SendEventFormSt
         </Form.Group>
 
         <Form.Group>
-          <Form.Label>timestamp</Form.Label>
-          <Form.Control type='text' placeholder='timestamp' value={this.state.eventData.timestamp} onChange={this.onTimestampChange} />
-          <Form.Text className='text-muted'>
-            The timestamp of the event in ISO8601 format, e.g. "2019-01-01T00:00:00Z".
-          </Form.Text>
-        </Form.Group>
-
-        <Form.Group>
           <Form.Label>value</Form.Label>
           <Form.Control type='text' placeholder='value' value={this.state.eventData.value.toString()} onChange={this.onValueChange} />
           <Form.Text className='text-muted'>
@@ -226,3 +202,4 @@ export class SendEventForm extends Component<SendEventFormProps, SendEventFormSt
     );
   };
 }
+export default QueryForm;
