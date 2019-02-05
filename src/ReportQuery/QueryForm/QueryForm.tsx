@@ -1,31 +1,30 @@
 import React, { Component } from 'react';
 const moment = require('moment');
 
-import axios from 'axios';
-import { Form, Button, InputGroup } from 'react-bootstrap';
+import { Form, InputGroup } from 'react-bootstrap';
 
 import './QueryForm.css';
 
-
 export interface GenericEventPayload {
-  event_version: number;
-  category: string;
-  action: string;
-  label?: string;
-  vendor: string;
+  sources: string[];
+  interval: any;
+  granularity: string;
+  group_by: string[];
   organization_id: string;
-  timestamp: string;
-  properties: string[];
-  value: number;
+  vendor: string;
+  aggregations: string[];
+  filters: any;
 }
 
 interface QueryFormProps {
   onInputChange: Function;
   initialQueryData: GenericEventPayload;
+  token: string;
 }
 
 interface QueryFormFormState {
-  eventData: GenericEventPayload;
+  queryData: GenericEventPayload;
+  token: string;
 };
 
 class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
@@ -33,82 +32,72 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
   constructor(props: QueryFormProps) {
     super(props);
     this.state = {
-      eventData: props.initialQueryData
+      queryData: props.initialQueryData,
+      token: this.props.token,
     };
   }
 
-  onSendEventClick = () => {
-    let apiUrl = 'https://api.giosg.com/events/v1/store/untrusted';
-    axios.post(apiUrl, this.state.eventData)
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+  onStartChange = (event: any) => {
+    const queryData = {...this.state.queryData};
+    queryData.interval.start = event.target.value;
+    this.setState({queryData});
+    this.props.onInputChange(queryData);
   };
-
-  onGenerateOrgIdClick = () => {
-    var eventData = {...this.state.eventData}
-    eventData.organization_id = 'rölö';
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
-  };
-  onEventVersionChange = (event: any) => {
-    const eventData = {...this.state.eventData};
-    eventData.event_version = parseInt(event.target.value);
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
-  };
-  onTimestampChange = (event: any) => {
-    const eventData = {...this.state.eventData};
-    eventData.timestamp = event.target.value;
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
+  onEndChange = (event: any) => {
+    const queryData = {...this.state.queryData};
+    queryData.interval.end = event.target.value;
+    this.setState({queryData});
+    this.props.onInputChange(queryData);
   };
   onVendorChange = (event: any) => {
-    const eventData = {...this.state.eventData};
-    eventData.vendor = event.target.value;
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
+    const queryData = {...this.state.queryData};
+    queryData.vendor = event.target.value;
+    this.setState({queryData});
+    this.props.onInputChange(queryData);
   };
   onOrganizationIdChange = (event: any) => {
-    const eventData = {...this.state.eventData};
-    eventData.organization_id = event.target.value;
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
+    const queryData = {...this.state.queryData};
+    queryData.organization_id = event.target.value;
+    this.setState({queryData});
+    this.props.onInputChange(queryData);
   };
-  onCategoryChange = (event: any) => {
-    const eventData = {...this.state.eventData};
-    eventData.category = event.target.value;
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
+  onTokenChange = (event: any) => {
+    const queryData = {...this.state.queryData};
+    var token = event.target.value;
+    this.setState({queryData: queryData, token: token});
+    this.props.onInputChange(queryData, token);
   };
-  onLabelChange = (event: any) => {
-    const eventData = {...this.state.eventData};
-    eventData.label = event.target.value;
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
-  };
-  onActionChange = (event: any) => {
-    const eventData = {...this.state.eventData};
-    eventData.action = event.target.value;
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
-  };
-  onValueChange = (event: any) => {
-    const eventData = {...this.state.eventData};
-    eventData.value = parseFloat(event.target.value);
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
-  };
-  onPropertiesChange = (event: any) => {
-    const eventData = {...this.state.eventData};
-    eventData.properties = event.target.value.split(',');
-    this.setState({eventData});
-    this.props.onInputChange(eventData);
+  onGranularityChange = (event: any) => {
+    const queryData = {...this.state.queryData};
+    queryData.granularity = event.target.value;
+    this.setState({queryData});
+    this.props.onInputChange(queryData);
   };
 
+  onGranularityPick = (event: any) => {
+    const queryData = {...this.state.queryData};
+    queryData.sources = event.target.value;
+    this.props.onInputChange(queryData);
+  }
+
+  onSourcesPick = (event: any) => {
+    var sources = (event.target.value === "all") ? ['trusted', 'untrusted'] : [event.target.value]
+    const queryData = {...this.state.queryData};
+    queryData.sources = sources;
+    this.props.onInputChange(queryData);
+  }
+  onAggregationsPick = (event: any) => {
+    var aggregations = []
+    const queryData = {...this.state.queryData};
+    let options = event.target.options
+    for(var i = 0; i < 4; i++) {
+      if(options[i].selected) {
+        aggregations.push(options[i].value)
+      }
+    }
+    queryData.aggregations = aggregations;
+    this.props.onInputChange(queryData);
+  }
   getValidationState = (value: any, fieldType: 'string'|'number'|'timestamp'): string => {
     if (fieldType === 'number' && parseFloat(value) !== NaN) {
       return 'success';
@@ -124,44 +113,39 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     return (
       <Form>
         <Form.Group>
-          <Form.Label>action</Form.Label>
-          <Form.Control type='text' placeholder='action' value={this.state.eventData.action} onChange={this.onActionChange} />
+          <Form.Label>Source</Form.Label>
+          <Form.Control as="select" onChange={this.onSourcesPick} defaultValue="untrusted">
+            <option value="all">all</option>
+            <option value="trusted"> trusted</option>
+            <option value="untrusted">untrusted</option>
+          </Form.Control>
           <Form.Text className='text-muted'>
-            The action of the event, e.g. "created".
+            The sources used for querying events.
+          </Form.Text>
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Token</Form.Label>
+          <Form.Control type='text' onChange={this.onTokenChange} />
+          <Form.Text className='text-muted' placeholder="abc5678d-10sf-8fj4-fm3m-3d3f3f432asd">
+            Token is used for authorizating giosg backend.
+          </Form.Text>
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Interval</Form.Label>
+          <Form.Control type='text'
+           value={this.state.queryData.interval.start} onChange={this.onStartChange} />
+          <Form.Label>-</Form.Label>
+          <Form.Control type='text'
+           value={this.state.queryData.interval.end} onChange={this.onEndChange} />
+          <Form.Text className='text-muted'>
+            The interval used for querying events.
           </Form.Text>
         </Form.Group>
 
         <Form.Group>
-          <Form.Label>category</Form.Label>
-          <Form.Control type='text' placeholder='category' value={this.state.eventData.category} onChange={this.onCategoryChange} />
-          <Form.Text className='text-muted'>
-            The category of the event, e.g. "widget".
-          </Form.Text>
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>event_version</Form.Label>
-          <Form.Control type='number' placeholder='Numeric event version' value={this.state.eventData.event_version.toString()} onChange={this.onEventVersionChange} />
-          <Form.Text className='text-muted'>
-            The version of the event schema, e.g. 1.
-          </Form.Text>
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>label</Form.Label>
-          <Form.Control type='text' placeholder='label' value={this.state.eventData.label} onChange={this.onLabelChange} />
-          <Form.Text className='text-muted'>
-            The label of the event, e.g. "widget-5746".
-          </Form.Text>
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>organization_id</Form.Label>
+          <Form.Label>Organization id</Form.Label>
           <InputGroup className='mb-3'>
-            <Form.Control type='text' placeholder='organization_id' value={this.state.eventData.organization_id} onChange={this.onOrganizationIdChange} />
-            <InputGroup.Append>
-              <Button variant='outline-secondary' onClick={this.onGenerateOrgIdClick}>Generate</Button>
-            </InputGroup.Append>
+            <Form.Control type='text' placeholder='organization_id' value={this.state.queryData.organization_id} onChange={this.onOrganizationIdChange} />
           </InputGroup>
           <Form.Text className='text-muted'>
             The id of the organization which owns the event, e.g. "3bfed5a4-0353-4c56-887c-56a08b3883ab".
@@ -169,35 +153,35 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
         </Form.Group>
 
         <Form.Group>
-          <Form.Label>properties</Form.Label>
-          <Form.Control type='text' placeholder='properties (, as divider)' value={this.state.eventData.properties.join(',')} onChange={this.onPropertiesChange} />
+          <Form.Label>Granularity</Form.Label>
+          <Form.Control as="select" onChange={this.onGranularityPick} value={this.state.queryData.granularity}>
+            <option value="second">second</option>
+            <option value="minute"> minute</option>
+            <option value="hour">hour</option>
+            <option value="day">day</option>
+            <option value="week">week</option>
+          </Form.Control>
           <Form.Text className='text-muted'>
-            The properties of the event, e.g. "campaign,targeted". Each value separated with "," is considered as a separate property.
+          The granularity used to aggregate events to selected duration buckets.
           </Form.Text>
         </Form.Group>
 
         <Form.Group>
-          <Form.Label>value</Form.Label>
-          <Form.Control type='text' placeholder='value' value={this.state.eventData.value.toString()} onChange={this.onValueChange} />
+          <Form.Label>Aggregations</Form.Label>
+          <Form.Control multiple as="select" onChange={this.onAggregationsPick}>
+            <option value="Max">Max</option>
+            <option value="Min">Min</option>
+            <option value="Sum">Sum</option>
+            <option value="Count">Count</option>
+          </Form.Control>
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Vendor</Form.Label>
+          <Form.Control type='text' placeholder='Vendor uuid' value={this.state.queryData.vendor} onChange={this.onVendorChange} />
           <Form.Text className='text-muted'>
-            The value of the event, e.g. "35.2". Is converted to float before sending.
+            The source vendor of events.
           </Form.Text>
         </Form.Group>
-
-        <Form.Group>
-          <Form.Label>vendor</Form.Label>
-          <Form.Control type='text' placeholder='vendor' value={this.state.eventData.vendor} onChange={this.onVendorChange} />
-          <Form.Text className='text-muted'>
-            The sender of the events, e.g. "interaction-designer".
-          </Form.Text>
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Check type='checkbox' label='Checkbox' />
-        </Form.Group>
-        <Button variant='primary' type='button' onClick={this.onSendEventClick}>
-          Send event
-        </Button>
       </Form>
     );
   };
