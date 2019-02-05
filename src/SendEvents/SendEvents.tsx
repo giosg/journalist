@@ -4,8 +4,9 @@ import { Container, Row, Col } from 'react-bootstrap';
 
 import { SendEventForm, GenericEventPayload } from './SendEventForm/SendEventForm'
 import EventPreview from './EventPreview/EventPreview'
-
+import { ToastContainer } from 'react-toastify';
 import './SendEvents.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface SendEventsState {
   eventData: GenericEventPayload;
@@ -39,6 +40,7 @@ class SendEvents extends Component<SendEventsState, any> {
   render() {
     return (
       <Container>
+        <ToastContainer autoClose={5000} hideProgressBar={true}/>
         <Row>
           <Col lg={5}>
             <SendEventForm initialEventData={this.state.eventData} onInputChange={this.onFormChange}></SendEventForm>
