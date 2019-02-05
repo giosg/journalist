@@ -3,6 +3,7 @@ const moment = require('moment');
 
 import axios from 'axios';
 import { Form, Button, InputGroup } from 'react-bootstrap';
+import { toast, ToastContainer } from 'react-toastify';
 
 import './SendEventForm.css';
 
@@ -42,9 +43,15 @@ export class SendEventForm extends Component<SendEventFormProps, SendEventFormSt
     axios.post(apiUrl, this.state.eventData)
       .then(function (response) {
         console.log(response);
+        toast.success("Event sent succesfully!", {
+          position: toast.POSITION.TOP_RIGHT
+        });
       })
       .catch(function (error) {
         console.log(error);
+        toast.error("Sending event failed!", {
+          position: toast.POSITION.TOP_LEFT
+        });
       });
   };
 
