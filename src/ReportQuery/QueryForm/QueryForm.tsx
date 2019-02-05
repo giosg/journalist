@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 const moment = require('moment');
 
-import { Form, InputGroup } from 'react-bootstrap';
+import { Form, InputGroup , Badge, Col, Dropdown } from 'react-bootstrap';
 
 import './QueryForm.css';
 
@@ -25,6 +25,7 @@ interface QueryFormProps {
 interface QueryFormFormState {
   queryData: GenericEventPayload;
   token: string;
+  groupByItems: string[]
 };
 
 class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
@@ -34,6 +35,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     this.state = {
       queryData: props.initialQueryData,
       token: this.props.token,
+      groupByItems: []
     };
   }
 
@@ -98,6 +100,23 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     queryData.aggregations = aggregations;
     this.props.onInputChange(queryData);
   }
+  onGroupByPick = (event: any) => {
+    var groupBy = []
+    const queryData = {...this.state.queryData};
+    let options = event.target.options
+    for(var i = 0; i < 9; i++) {
+      if(options[i].selected) {
+        groupBy.push(options[i].value)
+      }
+    }
+    this.setState({
+      groupByItems: groupBy
+    })
+    queryData.group_by = groupBy;
+    this.props.onInputChange(queryData);
+
+  }
+
   getValidationState = (value: any, fieldType: 'string'|'number'|'timestamp'): string => {
     if (fieldType === 'number' && parseFloat(value) !== NaN) {
       return 'success';
@@ -130,18 +149,23 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
             Token is used for authorizating giosg backend.
           </Form.Text>
         </Form.Group>
-        <Form.Group>
-          <Form.Label>Interval</Form.Label>
-          <Form.Control type='text'
-           value={this.state.queryData.interval.start} onChange={this.onStartChange} />
-          <Form.Label>-</Form.Label>
-          <Form.Control type='text'
-           value={this.state.queryData.interval.end} onChange={this.onEndChange} />
-          <Form.Text className='text-muted'>
-            The interval used for querying events.
-          </Form.Text>
-        </Form.Group>
-
+        <Form.Label>Interval</Form.Label>
+        <Form.Row>
+          <Form.Group as={Col}>
+            <Form.Control type='text'
+            value={this.state.queryData.interval.start} onChange={this.onStartChange} />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>-</Form.Label>
+          </Form.Group>
+          <Form.Group as={Col}>
+            <Form.Control type='text'
+            value={this.state.queryData.interval.end} onChange={this.onEndChange} />
+          </Form.Group>
+        </Form.Row>
+        <Form.Text className='text-muted'>
+                The interval used for querying events.
+        </Form.Text>
         <Form.Group>
           <Form.Label>Organization id</Form.Label>
           <InputGroup className='mb-3'>
@@ -181,6 +205,27 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
           <Form.Text className='text-muted'>
             The source vendor of events.
           </Form.Text>
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Group by</Form.Label>
+          <Form.Row>
+          {this.state.groupByItems.map(title => (
+            <Badge variant="primary" id={title}>{title}</Badge>
+          ))}
+          </Form.Row>
+          <Dropdown.Divider />
+          <Form.Control multiple as="select" onChange={this.onGroupByPick}>
+            <option value="event_version">vendor</option>
+            <option value="source">source</option>
+            <option value="category">category</option>
+            <option value="action">action</option>
+            <option value="organization_id">organization_id</option>
+            <option value="properties">properties</option>
+            <option value="visitor_id">visitor_id</option>
+            <option value="session_id">session_id</option>
+            <option value="user_id">user_id</option>
+            <option value="browser_name">browser_name</option>
+          </Form.Control>
         </Form.Group>
       </Form>
     );

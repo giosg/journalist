@@ -86,10 +86,10 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       <Container>
         <ToastContainer autoClose={5000} hideProgressBar={true}/>
         <Row>
-          <Col lg={5}>
+          <Col sm>
           <QueryForm onInputChange={this.onFormChange} initialQueryData={this.state.currentQuery} token={this.state.token}/>
           </Col>
-          <Col lg={7}>
+          <Col sm>
           <ResponsePreview responseData={this.state.currentQuery}/>
           </Col>
         </Row>
