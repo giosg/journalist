@@ -34,8 +34,24 @@ export class SendEventForm extends Component<SendEventFormProps, SendEventFormSt
   constructor(props: SendEventFormProps) {
     super(props);
     this.state = {
-      eventData: props.initialEventData
+      eventData: {
+        event_version: 1,
+        timestamp: new Date().toISOString(),
+        organization_id: "3bfed5a4-0353-4c56-887c-56a08b3883ab",
+        vendor: "com.giosg.journalist",
+        category: "test-event",
+        label: "this-is-test",
+        properties: ["test-property"],
+        action: "test-sending",
+        value: 1,
+      }
     };
+  }
+
+  onFormChange = (eventData: GenericEventPayload) => {
+    this.setState({
+      eventData: eventData
+    });
   }
 
   onSendEventClick = () => {
