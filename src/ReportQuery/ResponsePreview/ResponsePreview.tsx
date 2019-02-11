@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { github } from 'react-syntax-highlighter/dist/styles/hljs';
 
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
@@ -20,7 +22,9 @@ class JsonPreview extends Component<JsonPreviewProps, JsonPreviewPropsState> {
       return (
         <Container style={{flex: 1, justifyContent: 'center'}}>
             <Card style={{minHeight: 500, maxHeight: 800}}>
-            <pre>{JSON.stringify(this.props.jsonData, null, 2) }</pre>
+            <SyntaxHighlighter language='json' style={github}>
+              {JSON.stringify(this.props.jsonData, null, 4) }
+            </SyntaxHighlighter>
             </Card>
         </Container>
       );
