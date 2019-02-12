@@ -1,31 +1,49 @@
 /// <reference path="../../../typings/react-vis.d.ts"/>
 
 import React, { Component } from 'react';
-// import './App.css';
-import {XYPlot, LineSeries} from 'react-vis';
+import {XYPlot, LineSeries, VerticalGridLines, HorizontalGridLines, YAxis, XAxis, LineSeriesPoint} from 'react-vis';
+import Container from 'react-bootstrap/Container';
 
-class QueryVisualization extends Component {
-  render() {
-    const data = [
-      {x: 0, y: 8},
-      {x: 1, y: 5},
-      {x: 2, y: 4},
-      {x: 3, y: 9},
-      {x: 4, y: 1},
-      {x: 5, y: 7},
-      {x: 6, y: 6},
-      {x: 7, y: 3},
-      {x: 8, y: 2},
-      {x: 9, y: 0}
-    ];
-    return (
-      <div className="visualize">
-        <XYPlot height={300} width={300}>
-          <LineSeries data={data} />
-        </XYPlot>
-      </div>
-    );
-  }
+interface QueryVisualizationProps {
+  data: any;
+}
+interface QueryVisualizationState {
+  dataToVisualize: any,
 }
 
+class QueryVisualization extends Component<QueryVisualizationProps, QueryVisualizationState> {
+
+  constructor(props: QueryVisualizationProps) {
+    super(props);
+    this.state = {
+      dataToVisualize: this.props.data,
+    };
+  }
+  render() {
+    if(Object.keys(this.props.data).length > 0) {
+      let lineSeries = [];
+      for (const [ key, value ] of Object.entries(this.props.data)) {
+        lineSeries.push(<LineSeries key={key} data={value as LineSeriesPoint[]}></LineSeries>)
+      }
+
+      return (
+        <div className="visualize">
+        <XYPlot height={500} width={1000}>
+        <VerticalGridLines />
+        <HorizontalGridLines />
+        <XAxis />
+        <YAxis />
+          {lineSeries}
+        </XYPlot>
+
+        </div>
+      );
+    }
+    return (
+      <Container>
+      </Container>
+
+    )
+  }
+}
 export default QueryVisualization;

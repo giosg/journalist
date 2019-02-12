@@ -25,6 +25,7 @@ interface ReportQueryState {
   token: string;
   queryViewModalVisible: boolean;
   modalClass: string;
+  dataToVisualize: any;
 };
 
 class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
@@ -50,10 +51,11 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         filters: {
         }
       },
-      responseData:{ },
+      responseData:{},
       token: '',
       queryViewModalVisible: false,
       modalClass: "alert-success",
+      dataToVisualize: {}
     };
   }
 
@@ -62,7 +64,6 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       currentQuery: currentQuery,
       token: token
     });
-    console.log(this.state.currentQuery)
   }
 
   onModalViewVisibilityChange = () => {
@@ -70,7 +71,23 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       queryViewModalVisible: !this.state.queryViewModalVisible,
     });
   }
-
+  formVisualizationData = (data: any) => {
+    var dataToVisualize: any = {};
+    data['fields'].forEach((row: any, index: number)  => {
+      if (index > 0 && row['type'] === "metric") {
+        let aggregationToVisualize: any = [];
+        data['data'].forEach((element: any) => {
+          var timestamp = new Date(element[0]).getTime();
+          // Remove timestamp format by adding just element[0] which is iso time string
+          aggregationToVisualize.push({'y': element[index], 'x': timestamp})
+        });
+        dataToVisualize[row['name']] = aggregationToVisualize;
+      }
+    });
+    this.setState({
+      dataToVisualize: dataToVisualize
+    })
+  }
   onQuery = () => {
     let self = this;
     let apiBaseUrl = 'https://api.giosg.com/api/events/v1';
@@ -87,18 +104,22 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
           responseData: response['data'],
           modalClass: "alert-success"
         })
+        self.formVisualizationData(response['data']);
       })
-      .catch(function (error: any) {
-        self.setState({
-          responseData: error["response"],
-          modalClass: "alert-danger"
-        })
-        toast.error('Query failed!', {
-          position: toast.POSITION.TOP_LEFT
-        });
-      })
+      // .catch(function (error: any) {
+      //   self.setState({
+      //     responseData: error["response"],
+      //     modalClass: "alert-danger"
+      //   })
+      //   toast.error('Query failed!', {
+      //     position: toast.POSITION.TOP_LEFT
+      //   });
+      // })
       .finally(function(){
-        self.onModalViewVisibilityChange();
+        if(self.state.responseData){
+          self.onModalViewVisibilityChange();
+
+        }
       })
   };
 
@@ -132,7 +153,7 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         <Button variant='primary' type='button' onClick={this.onQuery}>
           Execute query
         </Button>
-        <QueryVisualization></QueryVisualization>
+        <QueryVisualization data={this.state.dataToVisualize}></QueryVisualization>
       </Container>
     );
   }
