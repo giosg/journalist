@@ -222,10 +222,6 @@ export class SendEventForm extends Component<SendEventFormProps, SendEventFormSt
             The sender of the events, e.g. "interaction-designer".
           </Form.Text>
         </Form.Group>
-
-        <Form.Group>
-          <Form.Check type='checkbox' label='Checkbox' />
-        </Form.Group>
         <Button variant='primary' type='button' onClick={this.onSendEventClick}>
           Send event
         </Button>
