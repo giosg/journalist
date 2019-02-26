@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 const moment = require('moment');
 
+import uuid from "uuid";
 import axios from 'axios';
 import { Form, Button, InputGroup } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
@@ -73,7 +74,7 @@ export class SendEventForm extends Component<SendEventFormProps, SendEventFormSt
 
   onGenerateOrgIdClick = () => {
     var eventData = {...this.state.eventData}
-    eventData.organization_id = 'rölö';
+    eventData.organization_id = uuid.v4()
     this.setState({eventData});
     this.props.onInputChange(eventData);
   };

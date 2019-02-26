@@ -9,12 +9,19 @@ import AboutCover from './AboutCover/AboutCover'
 
 import './About.css';
 
+interface AboutCoverProps {
+  queryRedirect: Function;
+  sendRedirect: Function;
+}
 
-class About extends Component {
+interface AboutCoverState {
+};
+
+class About extends Component<AboutCoverProps, AboutCoverState> {
   render() {
     return (
       <div>
-        <AboutCover></AboutCover>
+        <AboutCover queryRedirect={this.props.queryRedirect} sendRedirect={this.props.sendRedirect}></AboutCover>
         <Container>
           <Row className="justify-content-md-center">
             <Col lg={8}>

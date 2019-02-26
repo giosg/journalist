@@ -4,7 +4,15 @@ import { Button } from 'react-bootstrap';
 
 import './AboutCover.css';
 
-class AboutCover extends Component<any, any> {
+interface AboutCoverProps {
+  queryRedirect: Function;
+  sendRedirect: Function;
+}
+
+interface AboutCoverState {
+};
+
+class AboutCover extends Component<AboutCoverProps, AboutCoverState> {
   coverStyles: Object = {}
 
   constructor(props: any, state: any) {
@@ -39,7 +47,9 @@ class AboutCover extends Component<any, any> {
       element.scrollIntoView();
     }
   };
+/*
 
+*/
   render() {
     return (
       <div className="cover" style={this.coverStyles}>
@@ -49,8 +59,8 @@ class AboutCover extends Component<any, any> {
             <p className="lead font-weight-normal">
               Investigate and find interesting details from your data!
             </p>
-            <Button variant="light" type="submit">Query your data</Button>
-            <Button variant="light" type="submit">Send some events</Button>
+            <Button variant="light" onClick={this.props.queryRedirect.bind(this)}  type="submit">Query your data</Button>
+            <Button variant="light" onClick={this.props.sendRedirect.bind(this)} type="submit">Send some events</Button>
             <div>
               <Button variant="outline-light" type="submit" className="read-more-button" onClick={this.onReadMoreClick.bind(this)}>What is this anyway?</Button>
             </div>

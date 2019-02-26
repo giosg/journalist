@@ -77,9 +77,13 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       if (index > 0 && row['type'] === "metric") {
         let aggregationToVisualize: any = [];
         data['data'].forEach((element: any) => {
-          var timestamp = new Date(element[0]).getTime();
+          let value = element[index];
+          if(!isFinite(value)) {
+            value = 0.0;
+          }
+          var timestamp = new Date(element[0]);
           // Remove timestamp format by adding just element[0] which is iso time string
-          aggregationToVisualize.push({'y': element[index], 'x': timestamp})
+          aggregationToVisualize.push({'y': value, 'x': timestamp})
         });
         dataToVisualize[row['name']] = aggregationToVisualize;
       }
@@ -106,15 +110,15 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         })
         self.formVisualizationData(response['data']);
       })
-      // .catch(function (error: any) {
-      //   self.setState({
-      //     responseData: error["response"],
-      //     modalClass: "alert-danger"
-      //   })
-      //   toast.error('Query failed!', {
-      //     position: toast.POSITION.TOP_LEFT
-      //   });
-      // })
+      .catch(function (error: any) {
+        self.setState({
+          responseData: error["response"],
+          modalClass: "alert-danger"
+        })
+        toast.error('Query failed!', {
+          position: toast.POSITION.TOP_LEFT
+        });
+      })
       .finally(function(){
         if(self.state.responseData){
           self.onModalViewVisibilityChange();
