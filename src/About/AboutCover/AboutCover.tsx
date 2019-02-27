@@ -1,18 +1,14 @@
 import React, { Component } from 'react';
 
 import { Button } from 'react-bootstrap';
+import { LinkContainer, IndexLinkContainer } from "react-router-bootstrap";
+import { Nav, Navbar } from 'react-bootstrap'
+
 
 import './AboutCover.css';
 
-interface AboutCoverProps {
-  queryRedirect: Function;
-  sendRedirect: Function;
-}
 
-interface AboutCoverState {
-};
-
-class AboutCover extends Component<AboutCoverProps, AboutCoverState> {
+class AboutCover extends Component {
   coverStyles: Object = {}
 
   constructor(props: any, state: any) {
@@ -59,8 +55,12 @@ class AboutCover extends Component<AboutCoverProps, AboutCoverState> {
             <p className="lead font-weight-normal">
               Investigate and find interesting details from your data!
             </p>
-            <Button variant="light" onClick={this.props.queryRedirect.bind(this)}  type="submit">Query your data</Button>
-            <Button variant="light" onClick={this.props.sendRedirect.bind(this)} type="submit">Send some events</Button>
+            <LinkContainer to="/query">
+              <Button variant="light">Query your data</Button>
+            </LinkContainer>
+            <LinkContainer to="/send">
+              <Button variant="light" href="/send">Send some events</Button>
+            </LinkContainer>
             <div>
               <Button variant="outline-light" type="submit" className="read-more-button" onClick={this.onReadMoreClick.bind(this)}>What is this anyway?</Button>
             </div>

@@ -13,22 +13,17 @@ import './App.css';
 class App extends Component {
   history: any;
 
-  handleQuery = () => {
-    this.history.push('/query');
-  }
-  handleSend = () => {
-    this.history.push('/send');
-  }
   constructor(props: any) {
     super(props);
     this.history = createBrowserHistory();
   }
+
   render() {
     return (
       <Router history={this.history}>
         <div className="App">
             <AppHeader></AppHeader>
-            <Route path="/" component={() => <About queryRedirect={this.handleQuery} sendRedirect={this.handleSend} />} exact={true} />
+            <Route path="/" component={About} exact={true} />
             <Route path="/query" component={ReportQuery} exact={true} />
             <Route path="/send" component={SendEvents} exact={true} />
             <AppFooter></AppFooter>
