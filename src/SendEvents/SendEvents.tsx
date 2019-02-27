@@ -20,7 +20,6 @@ class SendEvents extends Component<SendEventsState, any> {
     this.state = {
       eventData: {
         event_version: 1,
-        timestamp: new Date().toISOString(),
         organization_id: "3bfed5a4-0353-4c56-887c-56a08b3883ab",
         vendor: "com.giosg.journalist",
         category: "test-event",
