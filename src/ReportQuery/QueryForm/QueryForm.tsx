@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 const moment = require('moment');
 
 import { Form, InputGroup , Badge, Col, Dropdown, Container, Modal } from 'react-bootstrap';
-import JsonPreview from '../ResponsePreview/ResponsePreview';
 
 import './QueryForm.css';
 
@@ -74,6 +73,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
   onGranularityPick = (event: any) => {
     const queryData = {...this.state.queryData};
     queryData.granularity = event.target.value;
+    this.setState({queryData});
     this.props.onInputChange(queryData);
   }
 
@@ -81,6 +81,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     var sources = (event.target.value === "all") ? ['trusted', 'untrusted'] : [event.target.value]
     const queryData = {...this.state.queryData};
     queryData.sources = sources;
+    this.setState({queryData});
     this.props.onInputChange(queryData);
   }
   onAggregationsPick = (event: any) => {
@@ -93,6 +94,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
       }
     }
     queryData.aggregations = aggregations;
+    this.setState({queryData});
     this.props.onInputChange(queryData);
   }
   onGroupByPick = (event: any) => {
@@ -191,10 +193,10 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
         <Form.Group>
           <Form.Label>Aggregations</Form.Label>
           <Form.Control multiple as="select" onChange={this.onAggregationsPick}>
-            <option value="max">Max</option>
-            <option value="min">Min</option>
-            <option value="sum">Sum</option>
-            <option value="count">Count</option>
+            <option key="max" value="max">Max</option>
+            <option key="min" value="min">Min</option>
+            <option key="sum" value="sum">Sum</option>
+            <option key="count" value="count">Count</option>
           </Form.Control>
         </Form.Group>
 
@@ -215,16 +217,16 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
           </Form.Row>
           <Dropdown.Divider />
           <Form.Control multiple as="select" onChange={this.onGroupByPick}>
-            <option value="event_version">vendor</option>
-            <option value="source">source</option>
-            <option value="category">category</option>
-            <option value="action">action</option>
-            <option value="organization_id">organization_id</option>
-            <option value="properties">properties</option>
-            <option value="visitor_id">visitor_id</option>
-            <option value="session_id">session_id</option>
-            <option value="user_id">user_id</option>
-            <option value="browser_name">browser_name</option>
+            <option key="event_version" value="event_version">event_version</option>
+            <option key="source" value="source">source</option>
+            <option key="category" value="category">category</option>
+            <option key="action" value="action">action</option>
+            <option key="organization_id" value="organization_id">organization_id</option>
+            <option key="properties" value="properties">properties</option>
+            <option key="visitor_id" value="visitor_id">visitor_id</option>
+            <option key="session_id" value="session_id">session_id</option>
+            <option key="user_id" value="user_id">user_id</option>
+            <option key="browser_name" value="browser_name">browser_name</option>
           </Form.Control>
         </Form.Group>
       </Form>

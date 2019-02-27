@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { LinkContainer, IndexLinkContainer } from "react-router-bootstrap";
-import { Nav, Navbar } from 'react-bootstrap'
+import { Nav, Navbar, Image } from 'react-bootstrap'
 
 import './AppHeader.css';
 
@@ -8,7 +8,10 @@ class AppHeader extends Component {
   render() {
     return (
       <Navbar bg="primary" variant="dark" expand="lg" sticky="top">
-        <Navbar.Brand href="/">Journalist</Navbar.Brand>
+        <Navbar.Brand href="/">
+          <Image src="./favicon.png" rounded />
+          Journalist
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse>
           <Nav className="mr-auto">

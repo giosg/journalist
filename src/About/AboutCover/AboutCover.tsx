@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 
 import { Button } from 'react-bootstrap';
+import { LinkContainer, IndexLinkContainer } from "react-router-bootstrap";
+import { Nav, Navbar } from 'react-bootstrap'
+
 
 import './AboutCover.css';
 
-class AboutCover extends Component<any, any> {
+
+class AboutCover extends Component {
   coverStyles: Object = {}
 
   constructor(props: any, state: any) {
@@ -39,7 +43,9 @@ class AboutCover extends Component<any, any> {
       element.scrollIntoView();
     }
   };
+/*
 
+*/
   render() {
     return (
       <div className="cover" style={this.coverStyles}>
@@ -49,8 +55,12 @@ class AboutCover extends Component<any, any> {
             <p className="lead font-weight-normal">
               Investigate and find interesting details from your data!
             </p>
-            <Button variant="light" type="submit">Query your data</Button>
-            <Button variant="light" type="submit">Send some events</Button>
+            <LinkContainer to="/query">
+              <Button variant="light">Query your data</Button>
+            </LinkContainer>
+            <LinkContainer to="/send">
+              <Button variant="light" href="/send">Send some events</Button>
+            </LinkContainer>
             <div>
               <Button variant="outline-light" type="submit" className="read-more-button" onClick={this.onReadMoreClick.bind(this)}>What is this anyway?</Button>
             </div>

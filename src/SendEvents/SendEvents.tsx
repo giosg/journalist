@@ -7,6 +7,7 @@ import EventPreview from './EventPreview/EventPreview'
 import { ToastContainer } from 'react-toastify';
 import './SendEvents.css';
 import 'react-toastify/dist/ReactToastify.css';
+import JsonPreview from '../ReportQuery/JsonPreview/JsonPreview';
 
 interface SendEventsState {
   eventData: GenericEventPayload;
@@ -19,7 +20,6 @@ class SendEvents extends Component<SendEventsState, any> {
     this.state = {
       eventData: {
         event_version: 1,
-        timestamp: new Date().toISOString(),
         organization_id: "3bfed5a4-0353-4c56-887c-56a08b3883ab",
         vendor: "com.giosg.journalist",
         category: "test-event",
@@ -46,7 +46,7 @@ class SendEvents extends Component<SendEventsState, any> {
             <SendEventForm initialEventData={this.state.eventData} onInputChange={this.onFormChange}></SendEventForm>
           </Col>
           <Col lg={7}>
-            <EventPreview eventData={this.state.eventData as {[key: string]: any}}></EventPreview>
+            <JsonPreview jsonData={this.state.eventData as {[key: string]: any}}></JsonPreview>
           </Col>
         </Row>
       </Container>

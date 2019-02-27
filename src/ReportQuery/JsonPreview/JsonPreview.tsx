@@ -3,35 +3,32 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/styles/hljs';
 
 import Container from 'react-bootstrap/Container';
-import Card from 'react-bootstrap/Card';
 
-import './ResponsePreview.css';
+import './JsonPreview.css';
 
 interface JsonPreviewProps {
    jsonData: any;
 }
-interface JsonPreviewPropsState {
+interface JsonPreviewState {
 
 }
 
-class JsonPreview extends Component<JsonPreviewProps, JsonPreviewPropsState> {
+class JsonPreview extends Component<JsonPreviewProps, JsonPreviewState> {
 
   render() {
-    console.log(this.props.jsonData)
     if(Object.keys(this.props.jsonData).length > 0) {
       return (
         <Container style={{flex: 1, justifyContent: 'center'}}>
-            <Card style={{minHeight: 500, maxHeight: 800}}>
             <SyntaxHighlighter language='json' style={github}>
               {JSON.stringify(this.props.jsonData, null, 4) }
             </SyntaxHighlighter>
-            </Card>
         </Container>
       );
     }
     return (
-      <Card style={{minHeight: 500, maxHeight: 500}}>
-      </Card>
+      <Container>
+      </Container>
+
     )
   }
 }
