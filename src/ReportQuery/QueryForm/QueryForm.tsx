@@ -150,17 +150,25 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
         <Form.Label>Interval</Form.Label>
         <Form.Group>
           <Form.Row>
-            <Form.Group>
-              <Form.Control type='text'
-              value={this.state.queryData.interval.start} onChange={this.onStartChange} />
+
+            <Form.Group as={Col}>
+              <InputGroup size="sm">
+                <InputGroup.Prepend>
+                  <InputGroup.Text>Start</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control type='text' value={this.state.queryData.interval.start} onChange={this.onStartChange} />
+              </InputGroup>
             </Form.Group>
-            <Form.Group>
-              <Form.Label>-</Form.Label>
+
+            <Form.Group as={Col}>
+              <InputGroup size="sm">
+                <InputGroup.Prepend>
+                  <InputGroup.Text>End</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control type='text' value={this.state.queryData.interval.end} onChange={this.onEndChange} />
+              </InputGroup>
             </Form.Group>
-            <Form.Group>
-              <Form.Control type='text'
-              value={this.state.queryData.interval.end} onChange={this.onEndChange} />
-            </Form.Group>
+
           </Form.Row>
             <Form.Text className='text-muted'>
               The interval used for querying events.
@@ -168,7 +176,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
         </Form.Group>
 
         <Form.Group>
-        <Form.Label>Organization id</Form.Label>
+          <Form.Label>Organization id</Form.Label>
           <InputGroup className='mb-3'>
             <Form.Control type='text' placeholder='organization_id' value={this.state.queryData.organization_id} onChange={this.onOrganizationIdChange} />
           </InputGroup>
@@ -198,6 +206,9 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
             <option key="sum" value="sum">Sum</option>
             <option key="count" value="count">Count</option>
           </Form.Control>
+          <Form.Text className='text-muted' placeholder="abc5678d-10sf-8fj4-fm3m-3d3f3f432asd">
+            Aggregations you want to perform. Use CTRL/CMD + click to select multiple.
+          </Form.Text>
         </Form.Group>
 
         <Form.Group>
