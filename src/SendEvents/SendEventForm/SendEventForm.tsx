@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-const moment = require('moment');
 
 import uuid from "uuid";
 import axios from 'axios';

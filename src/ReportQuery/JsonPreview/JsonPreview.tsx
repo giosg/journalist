@@ -8,6 +8,7 @@ import './JsonPreview.css';
 
 interface JsonPreviewProps {
    jsonData: any;
+   titleText: string;
 }
 interface JsonPreviewState {
 
@@ -19,9 +20,10 @@ class JsonPreview extends Component<JsonPreviewProps, JsonPreviewState> {
     if(Object.keys(this.props.jsonData).length > 0) {
       return (
         <Container style={{flex: 1, justifyContent: 'center'}}>
-            <SyntaxHighlighter language='json' style={github}>
-              {JSON.stringify(this.props.jsonData, null, 4) }
-            </SyntaxHighlighter>
+          <h3>{this.props.titleText}</h3>
+          <SyntaxHighlighter language='json' style={github}>
+            {JSON.stringify(this.props.jsonData, null, 4) }
+          </SyntaxHighlighter>
         </Container>
       );
     }

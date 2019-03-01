@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 
-import { Container, Row, Col, Button, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Button, Modal, ButtonToolbar } from 'react-bootstrap';
 
 import QueryForm from './QueryForm/QueryForm';
 
@@ -20,6 +21,7 @@ interface ReportQueryProps {
 }
 
 interface ReportQueryState {
+  isLoading: boolean;
   currentQuery: any;
   responseData: any;
   token: string;
@@ -36,6 +38,7 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
     let startDate = new Date();
     startDate.setDate(startDate.getDate() -8)
     this.state = {
+      isLoading: false,
       currentQuery:
       {
         sources: ['untrusted'],
@@ -57,21 +60,22 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       modalClass: "alert-success",
       dataToVisualize: {}
     };
-  }
+  };
 
   onFormChange = (currentQuery: any, token: string = this.state.token) => {
     this.setState({
       currentQuery: currentQuery,
       token: token
     });
-  }
+  };
 
   onModalViewVisibilityChange = () => {
     this.setState({
       queryViewModalVisible: !this.state.queryViewModalVisible,
     });
-  }
-  formVisualizationData = (data: any) => {
+  };
+
+  setDataForVisualization = (data: any) => {
     var dataToVisualize: any = {};
     data['fields'].forEach((row: any, index: number)  => {
       if (index > 0 && row['type'] === "metric") {
@@ -83,7 +87,10 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
           }
           var timestamp = new Date(element[0]);
           // Remove timestamp format by adding just element[0] which is iso time string
-          aggregationToVisualize.push({'y': value, 'x': timestamp})
+          aggregationToVisualize.push({
+            'y': value,
+            'x': moment(timestamp).format("YYYY-MM-DD")
+          });
         });
         dataToVisualize[row['name']] = aggregationToVisualize;
       }
@@ -91,9 +98,9 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
     this.setState({
       dataToVisualize: dataToVisualize
     })
-  }
-  onQuery = () => {
-    let self = this;
+  };
+
+  executeQuery = () => {
     let apiBaseUrl = 'https://api.giosg.com/api/events/v1';
     let apiUrlEnding = '/orgs/' + this.state.currentQuery.organization_id + '/fetch'
     let headers = {
@@ -101,17 +108,22 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       'Authorization' : this.state.token,
       'Content-Type': 'application/json'
       }
-    }
-    axios.post(apiBaseUrl + apiUrlEnding, this.state.currentQuery, headers=headers)
-    .then(function (response: any) {
-        self.setState({
+    };
+
+    this.setState({
+      isLoading: true
+    });
+
+    return axios.post(apiBaseUrl + apiUrlEnding, this.state.currentQuery, headers=headers)
+    .then((response: any) => {
+        this.setState({
           responseData: response['data'],
-          modalClass: "alert-success"
+          modalClass: ""
         })
-        self.formVisualizationData(response['data']);
+        this.setDataForVisualization(response['data']);
       })
-      .catch(function (error: any) {
-        self.setState({
+      .catch((error: any) => {
+        this.setState({
           responseData: error["response"],
           modalClass: "alert-danger"
         })
@@ -119,12 +131,23 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
           position: toast.POSITION.TOP_LEFT
         });
       })
-      .finally(function(){
-        if(self.state.responseData){
-          self.onModalViewVisibilityChange();
+      .finally(() => {
+        this.setState({
+          isLoading: false
+        });
+      });
+  };
 
-        }
-      })
+  onQueryClick = () => {
+    this.executeQuery();
+  };
+
+  onQueryAndVisualizeClick = () => {
+    this.executeQuery().then(() => {
+      if (this.state.dataToVisualize) {
+        this.onModalViewVisibilityChange();
+      };
+    });
   };
 
   render() {
@@ -138,11 +161,11 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
           >
           <Modal.Header closeButton className={this.state.modalClass}>
             <Modal.Title id="example-modal-sizes-title-lg">
-              Response preview
+              Response visualized
             </Modal.Title>
           </Modal.Header>
           <Modal.Body className={this.state.modalClass}>
-            <JsonPreview jsonData={this.state.responseData}/>
+            <QueryVisualization data={this.state.dataToVisualize}></QueryVisualization>
           </Modal.Body>
         </Modal>
         <ToastContainer autoClose={5000} hideProgressBar={true}/>
@@ -151,13 +174,18 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
           <QueryForm onInputChange={this.onFormChange} initialQueryData={this.state.currentQuery} token={this.state.token}/>
           </Col>
           <Col sm>
-            <JsonPreview jsonData={this.state.currentQuery}/>
+            <JsonPreview jsonData={this.state.currentQuery} titleText="Request payload" />
+            <JsonPreview jsonData={this.state.responseData} titleText="Response body" />
           </Col>
         </Row>
-        <Button variant='primary' type='button' onClick={this.onQuery}>
-          Execute query
-        </Button>
-        <QueryVisualization data={this.state.dataToVisualize}></QueryVisualization>
+        <ButtonToolbar>
+          <Button variant='primary' type='button' onClick={!this.state.isLoading ? this.onQueryClick : undefined} disabled={this.state.isLoading}>
+            {this.state.isLoading ? 'Loading…' : 'Execute query'}
+          </Button>
+          <Button variant='primary' type='button' onClick={!this.state.isLoading ? this.onQueryAndVisualizeClick : undefined} disabled={this.state.isLoading}>
+            {this.state.isLoading ? 'Loading…' : 'Execute and visualize'}
+          </Button>
+        </ButtonToolbar>
       </Container>
     );
   }
