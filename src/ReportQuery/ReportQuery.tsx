@@ -197,16 +197,43 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       });
   };
 
+  validateInput = () => {
+    if(this.state.currentQuery.aggregations.length === 0) {
+      toast.error('At least one aggregation is required', {
+        position: toast.POSITION.TOP_LEFT
+      });
+      return false;
+    }
+    if(!moment(this.state.currentQuery.interval.start).isValid()) {
+      toast.error('Start time is invalid', {
+        position: toast.POSITION.TOP_LEFT
+      });
+      return false;
+    }
+    if(!moment(this.state.currentQuery.interval.end).isValid()) {
+      toast.error('End time is invalid', {
+        position: toast.POSITION.TOP_LEFT
+      });
+      return false;
+    }
+    return true;
+
+  }
+
   onQueryClick = () => {
-    this.executeQuery();
+    if(this.validateInput()) {
+      this.executeQuery();
+    }
   };
 
   onQueryAndVisualizeClick = () => {
-    this.executeQuery().then(() => {
-      if (this.state.dataToVisualize) {
-        this.onModalViewVisibilityChange();
-      };
-    });
+    if(this.validateInput()) {
+      this.executeQuery().then(() => {
+        if (this.state.dataToVisualize) {
+          this.onModalViewVisibilityChange();
+        };
+      });
+    }
   };
 
   render() {
