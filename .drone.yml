@@ -46,7 +46,7 @@ steps:
   - name: Deploy into prod k8s
     image: giosg/drone-helm
     settings:
-      chart: charts # Folder name with helm configuration
+      chart: chart # Folder name with helm configuration
       namespace: refinery
       release_name: journalist
       set_values: commit.hash=${DRONE_COMMIT} # This is used to define specific docker image
