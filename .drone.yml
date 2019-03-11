@@ -49,7 +49,7 @@ steps:
       chart: chart # Folder name with helm configuration
       namespace: refinery
       release_name: journalist
-      set_values: commit.hash=${DRONE_COMMIT} # This is used to define specific docker image
+      set_values: journalist.image.tag=${DRONE_COMMIT} # This is used to define specific docker image
       api_server:
         from_secret: k8s-server
       kubernetes_token:
