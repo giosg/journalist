@@ -99,10 +99,6 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         let aggregationToVisualize: any = [];
         data['data'].forEach((element: any) => {
           let value = element[index];
-          // This can be removed when api doesn't return -Infinity and Infinity
-          if(!isFinite(value)) {
-            value = 0.0;
-          }
           aggregationToVisualize.push({
             'y': value,
             'x': moment(element[0]).format("YYYY-MM-DD")
