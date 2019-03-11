@@ -239,6 +239,9 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
             <option key="user_id" value="user_id">user_id</option>
             <option key="browser_name" value="browser_name">browser_name</option>
           </Form.Control>
+          <Form.Text className='text-muted'>
+            Field used for groupping events by.
+          </Form.Text>
         </Form.Group>
       </Form>
     );

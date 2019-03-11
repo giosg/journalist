@@ -31,7 +31,6 @@ interface ReportQueryState {
 };
 
 class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
-
   constructor(props: any) {
     super(props);
     let endDate = new Date();
@@ -74,27 +73,87 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       queryViewModalVisible: !this.state.queryViewModalVisible,
     });
   };
-
-  setDataForVisualization = (data: any) => {
-    var dataToVisualize: any = {};
+  setZerosToUndefinedDates = (data: any) => {
+    let dateStart = moment(this.state.currentQuery.interval['start']);
+    let dateEnd = moment(this.state.currentQuery.interval['end']);
+    let stuff: any = [];
+    while (dateEnd >= dateStart || dateStart.format('YYYY-MM-DD') === dateEnd.format('YYYY-MM-DD')) {
+      let found = false;
+      data.forEach((row: any, index: number)  => {
+        if(row['x'] === dateStart.format('YYYY-MM-DD')) {
+          stuff.push(row);
+          found = true;
+        }
+      });
+      if(!found) {
+        stuff.push({'x': dateStart.format('YYYY-MM-DD'), 'y': 0});
+      }
+      dateStart.add(1,'day');
+    }
+    return stuff;
+  }
+  getVisualizationByAggregation(data: any, dataToVisualize: any) {
+    // Non groupby data visualization formatting
     data['fields'].forEach((row: any, index: number)  => {
       if (index > 0 && row['type'] === "metric") {
         let aggregationToVisualize: any = [];
         data['data'].forEach((element: any) => {
           let value = element[index];
+          // This can be removed when api doesn't return -Infinity and Infinity
           if(!isFinite(value)) {
             value = 0.0;
           }
-          var timestamp = new Date(element[0]);
-          // Remove timestamp format by adding just element[0] which is iso time string
           aggregationToVisualize.push({
             'y': value,
-            'x': moment(timestamp).format("YYYY-MM-DD")
+            'x': moment(element[0]).format("YYYY-MM-DD")
           });
         });
         dataToVisualize[row['name']] = aggregationToVisualize;
       }
     });
+  }
+  getGroupByVisualizationByAggregation(data: any, dataToVisualize: any, aggregationIndex: number) {
+    // groupby data visualization formatting
+    let fields: any = {}
+    data['data'].forEach((element: any) => {
+      let fieldName = ""
+      data['fields'].forEach((row: any, index: number)  => {
+        if (index > 0 && row['type'] === "dimension") {
+          let value = element[index];
+          fieldName = fieldName + value + "_";
+        }
+      });
+      if(fieldName !== "") {
+        fieldName = fieldName + data['fields'][aggregationIndex]['name'];
+        if(!(fieldName in fields)) {
+          fields[fieldName] = []
+        }
+        fields[fieldName].push({
+          'y': element[aggregationIndex],
+          'x': moment(element[0]).format("YYYY-MM-DD")
+        });
+      }
+    });
+    let isGroupByQuery = false;
+    for (const [ key, value ] of Object.entries(fields)) {
+      dataToVisualize[key] = this.setZerosToUndefinedDates(value);
+      isGroupByQuery = true;
+    }
+    return isGroupByQuery;
+  }
+  setDataForVisualization = (data: any) => {
+    var dataToVisualize: any = {};
+    var isGroupByQuery = false;
+    // format groupped by data
+    data['fields'].forEach((row: any, index: number)  => {
+      if (index > 0 && row['type'] === "metric") {
+        isGroupByQuery = this.getGroupByVisualizationByAggregation(data, dataToVisualize, index);
+      }
+    });
+    // if query type is not group by format not groupped by data
+    if(!isGroupByQuery) {
+      this.getVisualizationByAggregation(data, dataToVisualize);
+    }
     this.setState({
       dataToVisualize: dataToVisualize
     })
@@ -138,16 +197,43 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       });
   };
 
+  validateInput = () => {
+    if(this.state.currentQuery.aggregations.length === 0) {
+      toast.error('At least one aggregation is required', {
+        position: toast.POSITION.TOP_LEFT
+      });
+      return false;
+    }
+    if(!moment(this.state.currentQuery.interval.start).isValid()) {
+      toast.error('Start time is invalid', {
+        position: toast.POSITION.TOP_LEFT
+      });
+      return false;
+    }
+    if(!moment(this.state.currentQuery.interval.end).isValid()) {
+      toast.error('End time is invalid', {
+        position: toast.POSITION.TOP_LEFT
+      });
+      return false;
+    }
+    return true;
+
+  }
+
   onQueryClick = () => {
-    this.executeQuery();
+    if(this.validateInput()) {
+      this.executeQuery();
+    }
   };
 
   onQueryAndVisualizeClick = () => {
-    this.executeQuery().then(() => {
-      if (this.state.dataToVisualize) {
-        this.onModalViewVisibilityChange();
-      };
-    });
+    if(this.validateInput()) {
+      this.executeQuery().then(() => {
+        if (this.state.dataToVisualize) {
+          this.onModalViewVisibilityChange();
+        };
+      });
+    }
   };
 
   render() {
@@ -171,21 +257,22 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         <ToastContainer autoClose={5000} hideProgressBar={true}/>
         <Row>
           <Col sm>
-          <QueryForm onInputChange={this.onFormChange} initialQueryData={this.state.currentQuery} token={this.state.token}/>
+            <QueryForm onInputChange={this.onFormChange} initialQueryData={this.state.currentQuery} token={this.state.token}/>
+            <ButtonToolbar>
+              <Button variant='primary' type='button' onClick={!this.state.isLoading ? this.onQueryClick : undefined} disabled={this.state.isLoading}>
+                {this.state.isLoading ? 'Loading…' : 'Execute query'}
+              </Button>
+              <Button variant='primary' type='button' onClick={!this.state.isLoading ? this.onQueryAndVisualizeClick : undefined} disabled=   {this.state.isLoading}>
+                {this.state.isLoading ? 'Loading…' : 'Execute and visualize'}
+              </Button>
+        </ButtonToolbar>
           </Col>
           <Col sm>
             <JsonPreview jsonData={this.state.currentQuery} titleText="Request payload" />
+            <br/>
             <JsonPreview jsonData={this.state.responseData} titleText="Response body" />
           </Col>
         </Row>
-        <ButtonToolbar>
-          <Button variant='primary' type='button' onClick={!this.state.isLoading ? this.onQueryClick : undefined} disabled={this.state.isLoading}>
-            {this.state.isLoading ? 'Loading…' : 'Execute query'}
-          </Button>
-          <Button variant='primary' type='button' onClick={!this.state.isLoading ? this.onQueryAndVisualizeClick : undefined} disabled={this.state.isLoading}>
-            {this.state.isLoading ? 'Loading…' : 'Execute and visualize'}
-          </Button>
-        </ButtonToolbar>
       </Container>
     );
   }

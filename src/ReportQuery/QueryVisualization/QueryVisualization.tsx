@@ -24,7 +24,6 @@ class QueryVisualization extends Component<QueryVisualizationProps, QueryVisuali
       showTooltip: undefined,
       dataToVisualize: this.props.data,
     };
-    console.log(this.props.data);
   }
 
   getSeries(data: Object) {
@@ -38,7 +37,6 @@ class QueryVisualization extends Component<QueryVisualizationProps, QueryVisuali
   };
 
   onNearestX = (value: LineMarkSeriesPoint, eventData: RVNearestXData<any>) => {
-    //console.log(value);
     const index = eventData.index;
     //const crosshairValues: LineMarkSeriesPoint[] = []; // this.props.data.map((d: LineMarkSeriesPoint[]) => d[index])
     const crosshairValues = Object.keys(this.props.data).map((series_name: string) => {
@@ -51,12 +49,22 @@ class QueryVisualization extends Component<QueryVisualizationProps, QueryVisuali
   getFormattedTooltipItem = (pointData: LineMarkSeriesPoint[]) => {
     const serieNames = Object.keys(this.props.data);
     return pointData.map((d: any, index: number) => {
-      return { title: serieNames[index], value: d.y };
+      try {
+        return { title: serieNames[index], value: d.y };
+      } catch(ex) {
+        return {title: serieNames[index], value: 0}
+      }
     });
   };
-
+  getFirstDefinedPoint = (pointData: LineMarkSeriesPoint[]) => {
+    for(let item in pointData) {
+      if(pointData[item]){
+        return pointData[item];
+      }
+    }
+  }
   getFormattedTooltipTitle = (pointData: LineMarkSeriesPoint[]) => {
-    const item = pointData[0]
+    const item: any = this.getFirstDefinedPoint(pointData);
     return { title: "Date", value: moment(item.x).format("LL") };
   };
 
@@ -64,10 +72,12 @@ class QueryVisualization extends Component<QueryVisualizationProps, QueryVisuali
     const hasData = Object.keys(this.props.data).length > 0;
     const crosshairValues = this.state.crosshairValues;
     if (hasData) {
+      let tickTotal = Object.keys(this.props.data)[0].length
       return (
         <div className="visualize">
-          <FlexibleXYPlot height={300} xType="ordinal" onMouseLeave={() => this.setState({crosshairValues: []})}>
-            <XAxis />
+          <FlexibleXYPlot height={300} xType="ordinal" margin={{bottom: 50}}
+ onMouseLeave={() => this.setState({crosshairValues: []})}>
+            <XAxis tickTotal={tickTotal}/>
             <YAxis />
             <VerticalGridLines />
             <HorizontalGridLines />

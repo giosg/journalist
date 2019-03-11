@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "journalist.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "journalist.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ include "journalist.chart" . }}
+  annotations:
+    kubernetes.io/ingress.class: internal
+    giosg.com/authorization-allow-all: 'true'
+spec:
+  rules:
+  - host: {{ .Values.journalist.domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ include "journalist.fullname" . }}
+          servicePort: http
