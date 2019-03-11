@@ -1,0 +1,6 @@
+journalist:
+  image:
+    repository: giosg/journalist
+    tag: latest
+  domain: journalist.int.giosg.com
+  replicas: 1

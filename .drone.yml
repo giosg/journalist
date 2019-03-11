@@ -1,0 +1,63 @@
+kind: pipeline
+name: pull request
+
+steps:
+  - name: Install dependencies and test
+    image: node:10
+    commands:
+      - npm install
+
+  - name: Build journalist
+    image: node:10
+    commands:
+      - npm run build
+trigger:
+  event:
+  - pull_request
+
+---
+
+kind: pipeline
+name: publish
+
+steps:
+  - name: Install dependencies
+    image: node:10
+    commands:
+      - npm install
+
+  - name: Build journalist
+    image: node:10
+    commands:
+      - npm run build
+
+  - name: Create docker image from Dockerfile
+    image: plugins/docker
+    settings:
+      repo: giosg/journalist
+      tags:
+        - latest
+        - ${DRONE_COMMIT}
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+
+  - name: Deploy into prod k8s
+    image: giosg/drone-helm
+    settings:
+      chart: charts # Folder name with helm configuration
+      namespace: refinery
+      release_name: journalist
+      set_values: commit.hash=${DRONE_COMMIT} # This is used to define specific docker image
+      api_server:
+        from_secret: k8s-server
+      kubernetes_token:
+        from_secret: k8s-token
+      kubernetes_ca:
+        from_secret: k8s-ca
+trigger:
+  branch:
+  - master
+  event:
+  - push
