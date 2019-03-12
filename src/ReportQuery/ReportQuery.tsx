@@ -171,16 +171,20 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
 
     return axios.post(apiBaseUrl + apiUrlEnding, this.state.currentQuery, headers=headers)
     .then((response: any) => {
+        this.setDataForVisualization(response['data']);
         this.setState({
           responseData: response['data'],
           modalClass: ""
         })
-        this.setDataForVisualization(response['data']);
       })
       .catch((error: any) => {
         toast.error('Query failed!', {
-          position: toast.POSITION.TOP_LEFT
+          position: toast.POSITION.TOP_LEFT,
         });
+        this.setState({
+          modalClass: "alert-error"
+        })
+
       })
       .finally(() => {
         this.setState({
