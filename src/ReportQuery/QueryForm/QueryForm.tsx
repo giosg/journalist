@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-import { Form, InputGroup , Badge, Col, Dropdown, Container, Modal } from 'react-bootstrap';
-
+import { Form, InputGroup , Badge, Col, Dropdown, Container, Modal, Button, ButtonToolbar } from 'react-bootstrap';
 import './QueryForm.css';
 
 export interface GenericEventPayload {
@@ -110,6 +109,40 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
       groupByItems: groupBy
     })
     queryData.group_by = groupBy;
+    this.props.onInputChange(queryData);
+  }
+  addNewFilter = () => {
+    let queryData = this.state.queryData;
+    if(queryData.filters['fields'].length < 11) {
+      queryData.filters['fields'].push({type: "selector", dimension: "category", value: ""})
+      this.setState({queryData});
+      this.props.onInputChange(queryData);
+    }
+  }
+  onTypeSelect = (index: number, event: any) => {
+    console.log(event)
+    console.log(index)
+    let queryData = this.state.queryData;
+    queryData.filters['fields'][index]['type'] = event.target.value;
+    this.setState({queryData});
+    this.props.onInputChange(queryData);
+  }
+  onValueSelect = (index: number, event: any) => {
+    let queryData = this.state.queryData;
+    queryData.filters['fields'][index]['value'] = event.target.value;
+    this.setState({queryData});
+    this.props.onInputChange(queryData);
+  }
+  onFieldSelect = (index: number, event: any) => {
+    let queryData = this.state.queryData;
+    queryData.filters['fields'][index]['dimension'] = event.target.value;
+    this.setState({queryData});
+    this.props.onInputChange(queryData);
+  }
+  removeLastFilter = () => {
+    let queryData = this.state.queryData;
+    queryData.filters['fields'].shift();
+    this.setState({queryData});
     this.props.onInputChange(queryData);
   }
 
@@ -241,6 +274,59 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
           </Form.Control>
           <Form.Text className='text-muted'>
             Field used for groupping events by.
+          </Form.Text>
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>Filters</Form.Label>
+          <Dropdown.Divider />
+          {this.state.queryData.filters['fields'].map((item: any, index: number) => (
+          <div>
+          <InputGroup>
+            <InputGroup.Prepend>
+              <InputGroup.Text>Type</InputGroup.Text>
+            </InputGroup.Prepend>
+            <Form.Control as="select" onChange={(event: any) => {this.onTypeSelect(index, event)}}>
+              <option key="select" value="select">selector</option>
+              <option key="regex" value="regex">regex</option>
+            </Form.Control>
+          </InputGroup>
+          <InputGroup>
+            <InputGroup.Prepend>
+              <InputGroup.Text>Field</InputGroup.Text>
+            </InputGroup.Prepend>
+            <Form.Control as="select" onChange={(event: any) => {this.onFieldSelect(index, event)}} value={this.state.queryData.filters['fields'][index]['dimension']}>
+              <option key="event_version" value="event_version">event_version</option>
+              <option key="source" value="source">source</option>
+              <option key="category" value="category">category</option>
+              <option key="action" value="action">action</option>
+              <option key="organization_id" value="organization_id">organization_id</option>
+              <option key="properties" value="properties">properties</option>
+              <option key="visitor_id" value="visitor_id">visitor_id</option>
+              <option key="session_id" value="session_id">session_id</option>
+              <option key="user_id" value="user_id">user_id</option>
+              <option key="browser_name" value="browser_name">browser_name</option>
+            </Form.Control>
+          </InputGroup>
+          <Form.Group>
+            <InputGroup>
+              <InputGroup.Prepend>
+                <InputGroup.Text>Value</InputGroup.Text>
+              </InputGroup.Prepend>
+              <Form.Control type='text' value={this.state.queryData.filters['fields'][index]['value']} onChange={(event: any) => {this.onValueSelect(index, event)}} />
+            </InputGroup>
+          </Form.Group>
+          </div>
+          ))}
+          <ButtonToolbar>
+            <Button variant='success' type='button' onClick={this.addNewFilter}>
+              New filter
+            </Button>
+            <Button variant='danger' type='button' onClick={this.removeLastFilter}>
+              Remove filter
+            </Button>
+          </ButtonToolbar>
+          <Form.Text className='text-muted'>
+            Filtering queryset.
           </Form.Text>
         </Form.Group>
       </Form>

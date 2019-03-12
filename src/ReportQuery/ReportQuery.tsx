@@ -51,6 +51,10 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         vendor: 'com.giosg.journalist',
         aggregations: [],
         filters: {
+          type: "and",
+          fields: [
+
+          ]
         }
       },
       responseData:{},
@@ -261,7 +265,7 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
               <Button variant='primary' type='button' onClick={!this.state.isLoading ? this.onQueryAndVisualizeClick : undefined} disabled=   {this.state.isLoading}>
                 {this.state.isLoading ? 'Loading…' : 'Execute and visualize'}
               </Button>
-        </ButtonToolbar>
+          </ButtonToolbar>
           </Col>
           <Col sm>
             <JsonPreview jsonData={this.state.currentQuery} titleText="Request payload" />
