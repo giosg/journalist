@@ -72,12 +72,11 @@ class QueryVisualization extends Component<QueryVisualizationProps, QueryVisuali
     const hasData = Object.keys(this.props.data).length > 0;
     const crosshairValues = this.state.crosshairValues;
     if (hasData) {
-      let tickTotal = Object.keys(this.props.data)[0].length
       return (
         <div className="visualize">
-          <FlexibleXYPlot height={300} xType="ordinal" margin={{bottom: 50}}
+          <FlexibleXYPlot height={300} xType="ordinal" margin={{bottom: 80, left: 50}}
  onMouseLeave={() => this.setState({crosshairValues: []})}>
-            <XAxis tickTotal={tickTotal}/>
+            <XAxis tickLabelAngle={-90} tickSize={10} />
             <YAxis />
             <VerticalGridLines />
             <HorizontalGridLines />

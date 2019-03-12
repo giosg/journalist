@@ -178,10 +178,6 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         this.setDataForVisualization(response['data']);
       })
       .catch((error: any) => {
-        this.setState({
-          responseData: error["response"],
-          modalClass: "alert-danger"
-        })
         toast.error('Query failed!', {
           position: toast.POSITION.TOP_LEFT
         });
