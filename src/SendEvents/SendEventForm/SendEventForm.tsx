@@ -54,7 +54,11 @@ export class SendEventForm extends Component<SendEventFormProps, SendEventFormSt
 
   onSendEventClick = () => {
     let apiUrl = 'https://api.giosg.com/events/v2/store/untrusted';
-    axios.post(apiUrl, this.state.eventData)
+    axios.post(apiUrl, {
+      events: [
+        this.state.eventData
+      ]
+    })
       .then(function (response) {
         console.log(response);
         toast.success("Event sent succesfully!", {
