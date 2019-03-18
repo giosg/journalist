@@ -88,7 +88,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     const queryData = {...this.state.queryData};
     let options = event.target.options
     for(var i = 0; i < 4; i++) {
-      if(options[i].selected) {
+      if (options[i].selected) {
         aggregations.push(options[i].value)
       }
     }
@@ -101,7 +101,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     const queryData = {...this.state.queryData};
     let options = event.target.options
     for(var i = 0; i < 9; i++) {
-      if(options[i].selected) {
+      if (options[i].selected) {
         groupBy.push(options[i].value)
       }
     }
@@ -113,7 +113,13 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
   }
   addNewFilter = () => {
     let queryData = this.state.queryData;
-    if(queryData.filters['fields'].length < 11) {
+    if (!queryData.filters['fields']) {
+      queryData.filters = {
+        type: 'and',
+        fields: []
+      }
+    }
+    if (queryData.filters['fields'].length < 11) {
       queryData.filters['fields'].push({type: "selector", dimension: "category", value: ""})
       this.setState({queryData});
       this.props.onInputChange(queryData);
@@ -141,7 +147,11 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
   }
   removeLastFilter = () => {
     let queryData = this.state.queryData;
-    queryData.filters['fields'].shift();
+    if (queryData.filters['fields'].length === 1) {
+      queryData.filters = {}
+    } else {
+      queryData.filters['fields'].shift();
+    }
     this.setState({queryData});
     this.props.onInputChange(queryData);
   }
@@ -158,6 +168,47 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
   };
 
   render() {
+    let filters = []
+    if ("fields" in this.state.queryData.filters) {
+      filters = this.state.queryData.filters['fields'].map((item: any, index: number) => (
+        <div>
+          <InputGroup>
+            <InputGroup.Prepend>
+              <InputGroup.Text>Type</InputGroup.Text>
+            </InputGroup.Prepend>
+            <Form.Control as="select" onChange={(event: any) => {this.onTypeSelect(index, event)}}>
+              <option key="select" value="select">selector</option>
+              <option key="regex" value="regex">regex</option>
+            </Form.Control>
+          </InputGroup>
+          <InputGroup>
+            <InputGroup.Prepend>
+              <InputGroup.Text>Field</InputGroup.Text>
+            </InputGroup.Prepend>
+            <Form.Control as="select" onChange={(event: any) => {this.onFieldSelect(index, event)}} value={this.state.queryData.filters['fields'][index]['dimension']}>
+              <option key="event_version" value="event_version">event_version</option>
+              <option key="source" value="source">source</option>
+              <option key="category" value="category">category</option>
+              <option key="action" value="action">action</option>
+              <option key="organization_id" value="organization_id">organization_id</option>
+              <option key="properties" value="properties">properties</option>
+              <option key="visitor_id" value="visitor_id">visitor_id</option>
+              <option key="session_id" value="session_id">session_id</option>
+              <option key="user_id" value="user_id">user_id</option>
+              <option key="browser_name" value="browser_name">browser_name</option>
+            </Form.Control>
+          </InputGroup>
+          <Form.Group>
+            <InputGroup>
+              <InputGroup.Prepend>
+                <InputGroup.Text>Value</InputGroup.Text>
+              </InputGroup.Prepend>
+              <Form.Control type='text' value={this.state.queryData.filters['fields'][index]['value']} onChange={(event: any) => {this.onValueSelect(index, event)}} />
+            </InputGroup>
+          </Form.Group>
+        </div>
+      ));
+      }
     return (
       <Form>
         <Form.Group>
@@ -279,44 +330,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
         <Form.Group>
           <Form.Label>Filters</Form.Label>
           <Dropdown.Divider />
-          {this.state.queryData.filters['fields'].map((item: any, index: number) => (
-          <div>
-          <InputGroup>
-            <InputGroup.Prepend>
-              <InputGroup.Text>Type</InputGroup.Text>
-            </InputGroup.Prepend>
-            <Form.Control as="select" onChange={(event: any) => {this.onTypeSelect(index, event)}}>
-              <option key="select" value="select">selector</option>
-              <option key="regex" value="regex">regex</option>
-            </Form.Control>
-          </InputGroup>
-          <InputGroup>
-            <InputGroup.Prepend>
-              <InputGroup.Text>Field</InputGroup.Text>
-            </InputGroup.Prepend>
-            <Form.Control as="select" onChange={(event: any) => {this.onFieldSelect(index, event)}} value={this.state.queryData.filters['fields'][index]['dimension']}>
-              <option key="event_version" value="event_version">event_version</option>
-              <option key="source" value="source">source</option>
-              <option key="category" value="category">category</option>
-              <option key="action" value="action">action</option>
-              <option key="organization_id" value="organization_id">organization_id</option>
-              <option key="properties" value="properties">properties</option>
-              <option key="visitor_id" value="visitor_id">visitor_id</option>
-              <option key="session_id" value="session_id">session_id</option>
-              <option key="user_id" value="user_id">user_id</option>
-              <option key="browser_name" value="browser_name">browser_name</option>
-            </Form.Control>
-          </InputGroup>
-          <Form.Group>
-            <InputGroup>
-              <InputGroup.Prepend>
-                <InputGroup.Text>Value</InputGroup.Text>
-              </InputGroup.Prepend>
-              <Form.Control type='text' value={this.state.queryData.filters['fields'][index]['value']} onChange={(event: any) => {this.onValueSelect(index, event)}} />
-            </InputGroup>
-          </Form.Group>
-          </div>
-          ))}
+          {filters}
           <ButtonToolbar>
             <Button variant='success' type='button' onClick={this.addNewFilter}>
               New filter
