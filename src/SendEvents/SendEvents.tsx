@@ -46,7 +46,7 @@ class SendEvents extends Component<SendEventsState, any> {
             <SendEventForm initialEventData={this.state.eventData} onInputChange={this.onFormChange}></SendEventForm>
           </Col>
           <Col lg={7}>
-            <JsonPreview jsonData={this.state.eventData as {[key: string]: any}} titleText="Request payload"></JsonPreview>
+            <JsonPreview jsonData={{events: [this.state.eventData]} as {[key: string]: any}} titleText="Request payload"></JsonPreview>
           </Col>
         </Row>
       </Container>
