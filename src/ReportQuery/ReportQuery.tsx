@@ -51,10 +51,7 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         vendor: 'com.giosg.journalist',
         aggregations: [],
         filters: {
-          type: "and",
-          fields: [
 
-          ]
         }
       },
       responseData:{},
@@ -168,11 +165,9 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       'Content-Type': 'application/json'
       }
     };
-
     this.setState({
       isLoading: true
     });
-
     return axios.post(apiBaseUrl + apiUrlEnding, this.state.currentQuery, headers=headers)
     .then((response: any) => {
         this.setDataForVisualization(response['data']);
