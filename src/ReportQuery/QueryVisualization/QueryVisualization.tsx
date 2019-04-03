@@ -65,10 +65,11 @@ class QueryVisualization extends Component<QueryVisualizationProps, QueryVisuali
   }
   getFormattedTooltipTitle = (pointData: LineMarkSeriesPoint[]) => {
     const item: any = this.getFirstDefinedPoint(pointData);
-    return { title: "Date", value: moment(item.x).format("LL") };
+    return { title: "Date", value: moment(item.x).format("lll") };
   };
 
   render() {
+    console.log(this.props.data);
     const hasData = Object.keys(this.props.data).length > 0;
     const crosshairValues = this.state.crosshairValues;
     if (hasData) {
@@ -76,7 +77,7 @@ class QueryVisualization extends Component<QueryVisualizationProps, QueryVisuali
         <div className="visualize">
           <FlexibleXYPlot height={300} xType="ordinal" margin={{bottom: 80, left: 50}}
  onMouseLeave={() => this.setState({crosshairValues: []})}>
-            <XAxis tickLabelAngle={-90} tickSize={10} />
+            <XAxis tickLabelAngle={-45} tickSize={10} />
             <YAxis />
             <VerticalGridLines />
             <HorizontalGridLines />

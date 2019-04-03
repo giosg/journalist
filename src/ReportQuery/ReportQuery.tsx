@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-import { Container, Row, Col, Button, Modal, ButtonToolbar } from 'react-bootstrap';
-
+import { Container, Row, Col, Modal, ButtonToolbar } from 'react-bootstrap';
+import { Button } from '@giosg/ui-components';
 import QueryForm from './QueryForm/QueryForm';
 
 import JsonPreview from './JsonPreview/JsonPreview';
@@ -35,7 +35,7 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
     super(props);
     let endDate = new Date();
     let startDate = new Date();
-    startDate.setDate(startDate.getDate() -8)
+    startDate.setDate(startDate.getDate() -3)
     this.state = {
       isLoading: false,
       currentQuery:
@@ -47,8 +47,8 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         },
         granularity: 'day',
         group_by: [],
-        organization_id: '3bfed5a4-0353-4c56-887c-56a08b3883ab',
-        vendor: 'com.giosg.journalist',
+        organization_id: 'a17cea80-e397-11e0-b51a-00163e0c01f2',//'3bfed5a4-0353-4c56-887c-56a08b3883ab',
+        vendor: 'com.giosg.app.derby',
         aggregations: [],
         filters: {
 
@@ -74,22 +74,22 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
       queryViewModalVisible: !this.state.queryViewModalVisible,
     });
   };
-  setZerosToUndefinedDates = (data: any) => {
+  setZerosToUndefinedDates = (data: any, granularity: 'day'|'hour'|'week'|'month'|'year') => {
     let dateStart = moment(this.state.currentQuery.interval['start']);
     let dateEnd = moment(this.state.currentQuery.interval['end']);
     let stuff: any = [];
-    while (dateEnd >= dateStart || dateStart.format('YYYY-MM-DD') === dateEnd.format('YYYY-MM-DD')) {
+    while (dateEnd >= dateStart || dateStart.format('YYYY-MM-DD HH:mm') === dateEnd.format('YYYY-MM-DD HH:mm')) {
       let found = false;
       data.forEach((row: any, index: number)  => {
-        if(row['x'] === dateStart.format('YYYY-MM-DD')) {
+        if(row['x'] === dateStart.format('YYYY-MM-DD HH:00')) {
           stuff.push(row);
           found = true;
         }
       });
       if(!found) {
-        stuff.push({'x': dateStart.format('YYYY-MM-DD'), 'y': 0});
+        stuff.push({'x': dateStart.format('YYYY-MM-DD HH:00'), 'y': 0});
       }
-      dateStart.add(1,'day');
+      dateStart.add(1, granularity);
     }
     return stuff;
   }
@@ -102,7 +102,7 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
           let value = element[index];
           aggregationToVisualize.push({
             'y': value,
-            'x': moment(element[0]).format("YYYY-MM-DD")
+            'x': moment(element[0]).format("YYYY-MM-DD HH:00")
           });
         });
         dataToVisualize[row['name']] = aggregationToVisualize;
@@ -127,13 +127,13 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         }
         fields[fieldName].push({
           'y': element[aggregationIndex],
-          'x': moment(element[0]).format("YYYY-MM-DD")
+          'x': moment(element[0]).format("YYYY-MM-DD HH:00")
         });
       }
     });
     let isGroupByQuery = false;
     for (const [ key, value ] of Object.entries(fields)) {
-      dataToVisualize[key] = this.setZerosToUndefinedDates(value);
+      dataToVisualize[key] = this.setZerosToUndefinedDates(value, this.state.currentQuery.granularity);
       isGroupByQuery = true;
     }
     return isGroupByQuery;
@@ -254,10 +254,10 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
           <Col sm>
             <QueryForm onInputChange={this.onFormChange} initialQueryData={this.state.currentQuery} token={this.state.token}/>
             <ButtonToolbar>
-              <Button variant='primary' type='button' onClick={!this.state.isLoading ? this.onQueryClick : undefined} disabled={this.state.isLoading}>
+              <Button priority='primary' type='button' onClick={!this.state.isLoading ? this.onQueryClick : undefined} disabled={this.state.isLoading}>
                 {this.state.isLoading ? 'Loading…' : 'Execute query'}
               </Button>
-              <Button variant='primary' type='button' onClick={!this.state.isLoading ? this.onQueryAndVisualizeClick : undefined} disabled=   {this.state.isLoading}>
+              <Button priority='primary' type='button' onClick={!this.state.isLoading ? this.onQueryAndVisualizeClick : undefined} disabled={this.state.isLoading || this.state.currentQuery.granularity === 'minute'}>
                 {this.state.isLoading ? 'Loading…' : 'Execute and visualize'}
               </Button>
           </ButtonToolbar>
