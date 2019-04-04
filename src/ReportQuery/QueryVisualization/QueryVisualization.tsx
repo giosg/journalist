@@ -69,7 +69,6 @@ class QueryVisualization extends Component<QueryVisualizationProps, QueryVisuali
   };
 
   render() {
-    console.log(this.props.data);
     const hasData = Object.keys(this.props.data).length > 0;
     const crosshairValues = this.state.crosshairValues;
     if (hasData) {

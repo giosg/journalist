@@ -47,8 +47,8 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         },
         granularity: 'day',
         group_by: [],
-        organization_id: 'a17cea80-e397-11e0-b51a-00163e0c01f2',//'3bfed5a4-0353-4c56-887c-56a08b3883ab',
-        vendor: 'com.giosg.app.derby',
+        organization_id: '3bfed5a4-0353-4c56-887c-56a08b3883ab', // 'a17cea80-e397-11e0-b51a-00163e0c01f2',
+        vendor: 'com.giosg.journalist',
         aggregations: [],
         filters: {
 
@@ -77,17 +77,30 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
   setZerosToUndefinedDates = (data: any, granularity: 'day'|'hour'|'week'|'month'|'year') => {
     let dateStart = moment(this.state.currentQuery.interval['start']);
     let dateEnd = moment(this.state.currentQuery.interval['end']);
+    const formats: {[key: string]: string} = {
+      'hour': 'YYYY-MM-DD HH:00',
+      'day': 'YYYY-MM-DD',
+      'week': 'YYYY-MM-DD',
+      'month': 'YYYY-MM-01'
+    }
+    if (granularity === 'week') {
+      dateStart.startOf('isoWeek');
+    }
+    if (granularity === 'month') {
+      dateStart.startOf('month');
+    }
     let stuff: any = [];
-    while (dateEnd >= dateStart || dateStart.format('YYYY-MM-DD HH:mm') === dateEnd.format('YYYY-MM-DD HH:mm')) {
+    while (dateEnd >= dateStart) {
       let found = false;
-      data.forEach((row: any, index: number)  => {
-        if(row['x'] === dateStart.format('YYYY-MM-DD HH:00')) {
+      data.forEach((row: any, index: number) => {
+        if(moment(row.x).format(formats[granularity]) === dateStart.format(formats[granularity])) {
+          row.x = moment(row.x).format(formats[granularity]);
           stuff.push(row);
           found = true;
         }
       });
       if(!found) {
-        stuff.push({'x': dateStart.format('YYYY-MM-DD HH:00'), 'y': 0});
+        stuff.push({'x': dateStart.format(formats[granularity]), 'y': 0});
       }
       dateStart.add(1, granularity);
     }
@@ -96,13 +109,13 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
   getVisualizationByAggregation(data: any, dataToVisualize: any) {
     // Non groupby data visualization formatting
     data['fields'].forEach((row: any, index: number)  => {
-      if (index > 0 && row['type'] === "metric") {
+      if (index > 0 && row['type'] === 'metric') {
         let aggregationToVisualize: any = [];
         data['data'].forEach((element: any) => {
           let value = element[index];
           aggregationToVisualize.push({
             'y': value,
-            'x': moment(element[0]).format("YYYY-MM-DD HH:00")
+            'x': moment(element[0]).format('YYYY-MM-DD HH:00')
           });
         });
         dataToVisualize[row['name']] = aggregationToVisualize;
@@ -127,7 +140,7 @@ class ReportQuery extends Component<ReportQueryProps, ReportQueryState> {
         }
         fields[fieldName].push({
           'y': element[aggregationIndex],
-          'x': moment(element[0]).format("YYYY-MM-DD HH:00")
+          'x': moment(element[0]).format("YYYY-MM-DD HH:mm")
         });
       }
     });

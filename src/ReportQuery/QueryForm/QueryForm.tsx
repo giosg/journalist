@@ -42,7 +42,6 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
   onStartChange = (event: any) => {
     const queryData = {...this.state.queryData};
     queryData.interval.start = event.target.value;
-    console.log(queryData);
     this.setState({queryData});
     this.props.onInputChange(queryData);
   };
@@ -274,11 +273,11 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
         <Form.Group>
           <Form.Label>Granularity</Form.Label>
           <Form.Control as="select" onChange={this.onGranularityPick} value={this.state.queryData.granularity}>
-            <option value="second">second</option>
             <option value="minute"> minute</option>
             <option value="hour">hour</option>
             <option value="day">day</option>
             <option value="week">week</option>
+            <option value="month">month</option>
           </Form.Control>
           <Form.Text className='text-muted'>
           The granularity used to aggregate events to selected duration buckets.
@@ -318,6 +317,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
             <option key="source" value="source">source</option>
             <option key="category" value="category">category</option>
             <option key="action" value="action">action</option>
+            <option key="label" value="label">label</option>
             <option key="organization_id" value="organization_id">organization_id</option>
             <option key="properties" value="properties">properties</option>
             <option key="visitor_id" value="visitor_id">visitor_id</option>

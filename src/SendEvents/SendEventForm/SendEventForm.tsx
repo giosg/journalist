@@ -60,7 +60,6 @@ export class SendEventForm extends Component<SendEventFormProps, SendEventFormSt
       ]
     })
       .then(function (response) {
-        console.log(response);
         toast.success("Event sent succesfully!", {
           position: toast.POSITION.TOP_RIGHT
         });
