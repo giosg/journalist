@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 
-import { Form, InputGroup , Badge, Col, Dropdown, Container, Modal, Button, ButtonToolbar } from 'react-bootstrap';
+import { Form, InputGroup , Badge, Col, Dropdown, ButtonToolbar } from 'react-bootstrap';
+import { Button } from '@giosg/ui-components';
 import './QueryForm.css';
 
 export interface GenericEventPayload {
@@ -97,7 +98,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     this.props.onInputChange(queryData);
   }
   onGroupByPick = (event: any) => {
-    var groupBy = []
+    var groupBy = [];
     const queryData = {...this.state.queryData};
     let options = event.target.options
     for(var i = 0; i < 9; i++) {
@@ -105,8 +106,10 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
         groupBy.push(options[i].value)
       }
     }
+    queryData.group_by = groupBy;
     this.setState({
-      groupByItems: groupBy
+      groupByItems: groupBy,
+      queryData
     })
     queryData.group_by = groupBy;
     this.props.onInputChange(queryData);
@@ -126,8 +129,6 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
     }
   }
   onTypeSelect = (index: number, event: any) => {
-    console.log(event)
-    console.log(index)
     let queryData = this.state.queryData;
     queryData.filters['fields'][index]['type'] = event.target.value;
     this.setState({queryData});
@@ -272,11 +273,11 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
         <Form.Group>
           <Form.Label>Granularity</Form.Label>
           <Form.Control as="select" onChange={this.onGranularityPick} value={this.state.queryData.granularity}>
-            <option value="second">second</option>
             <option value="minute"> minute</option>
             <option value="hour">hour</option>
             <option value="day">day</option>
             <option value="week">week</option>
+            <option value="month">month</option>
           </Form.Control>
           <Form.Text className='text-muted'>
           The granularity used to aggregate events to selected duration buckets.
@@ -307,7 +308,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
           <Form.Label>Group by</Form.Label>
           <Form.Row>
           {this.state.groupByItems.map(title => (
-            <Badge variant="primary" id={title}>{title}</Badge>
+            <Badge key={title} variant="primary" id={title}>{title}</Badge>
           ))}
           </Form.Row>
           <Dropdown.Divider />
@@ -316,6 +317,7 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
             <option key="source" value="source">source</option>
             <option key="category" value="category">category</option>
             <option key="action" value="action">action</option>
+            <option key="label" value="label">label</option>
             <option key="organization_id" value="organization_id">organization_id</option>
             <option key="properties" value="properties">properties</option>
             <option key="visitor_id" value="visitor_id">visitor_id</option>
@@ -332,10 +334,10 @@ class QueryForm extends Component<QueryFormProps, QueryFormFormState> {
           <Dropdown.Divider />
           {filters}
           <ButtonToolbar>
-            <Button variant='success' type='button' onClick={this.addNewFilter}>
+            <Button tone='positive' type='button' onClick={this.addNewFilter}>
               New filter
             </Button>
-            <Button variant='danger' type='button' onClick={this.removeLastFilter}>
+            <Button tone='negative' type='button' onClick={this.removeLastFilter}>
               Remove filter
             </Button>
           </ButtonToolbar>

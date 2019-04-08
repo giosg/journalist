@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@giosg/ui-components": "^2.0.0",
     "@types/jest": "23.3.13",
     "@types/node": "10.12.18",
     "@types/react": "16.7.20",
@@ -14,6 +15,7 @@
     "axios": "0.18.0",
     "bootstrap": "4.2.1",
     "moment": "2.24.0",
+    "node-sass": "^4.11.0",
     "react": "16.7.0",
     "react-bootstrap": "1.0.0-beta.5",
     "react-dom": "16.7.0",
@@ -23,6 +25,7 @@
     "react-syntax-highlighter": "^10.1.2",
     "react-toastify": "^4.5.2",
     "react-vis": "^1.11.6",
+    "styled-components": "^4.2.0",
     "typescript": "3.2.4",
     "uuid": "^3.3.2"
   },
