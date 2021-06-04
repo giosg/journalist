@@ -2,12 +2,12 @@ kind: pipeline
 name: pull-request
 
 steps:
-  - name: Install dependencies and test
+  - name: Install-dependencies
     image: node:10
     commands:
       - npm install
 
-  - name: Build journalist
+  - name: Build
     image: node:10
     commands:
       - npm run build
@@ -21,17 +21,17 @@ kind: pipeline
 name: publish
 
 steps:
-  - name: Install dependencies
+  - name: Install-dependencies
     image: node:10
     commands:
       - npm install
 
-  - name: Build journalist
+  - name: Build
     image: node:10
     commands:
       - npm run build
 
-  - name: Create docker image from Dockerfile
+  - name: Create-docker-image
     image: plugins/docker
     settings:
       repo: giosg/journalist
