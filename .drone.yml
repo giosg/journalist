@@ -1,5 +1,5 @@
 kind: pipeline
-name: pull request
+name: pull-request
 
 steps:
   - name: Install dependencies and test
