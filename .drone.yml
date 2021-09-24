@@ -44,12 +44,13 @@ steps:
         from_secret: docker_password
 
   - name: Deploy
-    image: giosg/drone-helm
+    image: giosg/drone-helm:3
     settings:
       chart: chart # Folder name with helm configuration
       namespace: refinery
       release_name: journalist
-      set_values: journalist.image.tag=${DRONE_COMMIT} # This is used to define specific docker image
+      set_value_template:
+        - journalist.image.tag={{ DRONE_COMMIT }} # This is used to define specific docker image
       api_server:
         from_secret: k8s-server
       kubernetes_token:
